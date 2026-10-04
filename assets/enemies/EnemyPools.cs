@@ -1,0 +1,105 @@
+using Godot;
+using System.Collections.Generic;
+
+public partial class EnemyPools : Node
+{
+	public static EnemyPools Instance;
+	private Dictionary<string, PackedScene> _scenes = new();
+	private Dictionary<string, Stack<Enemy>> _pools = new();
+	private Dictionary<string, Stack<EnemySpawner>> _spawners = new();
+	private Dictionary<Enemy, Enemy.DespawnEnemyEventHandler> _handlers = new();
+
+	public override void _Ready()
+	{
+		Instance = this;
+	}
+
+	public void LoadEnemies(Godot.Collections.Array<PoolResource> entries)
+	{
+		foreach (var entry in entries)
+		{
+			var stack = new Stack<Enemy>();
+			string id = "";
+			for (int i = 0; i < entry.InitialSize; i++)
+			{
+				var enemy = entry.Scene.Instantiate<Enemy>();
+				id = enemy.Id;
+				enemy.Deactivate();
+				Enemy.DespawnEnemyEventHandler handler = () => Release(enemy.Id, enemy);
+				enemy.DespawnEnemy += handler;
+				_handlers[enemy] = handler;
+				stack.Push(enemy);
+			}
+			_scenes[id] = entry.Scene;
+			_pools[id] = stack;
+		}
+	}
+
+	public Enemy Acquire(string id, Transform3D transform, Node3D target, float? health, string zoneId)
+	{
+		var pool = _pools[id];
+		Enemy enemy;
+		if (pool.Count == 0)
+		{
+			var scene = _scenes[id];
+			enemy = scene.Instantiate<Enemy>();
+			Enemy.DespawnEnemyEventHandler handler = () => Release(id, enemy);
+			enemy.DespawnEnemy += handler;
+			_handlers[enemy] = handler;
+		}
+		else
+		{
+			enemy = pool.Pop();
+		}
+		enemy.Activate();
+		enemy.Transform = transform;
+		enemy.Target = target;
+		enemy.Health.CurrentHealth = health == null ? enemy.Health.MaxHealth : (float)health;
+		enemy.ZoneId = zoneId;
+		return enemy;
+	}
+
+	public EnemySpawner AcquireSpawner(string id, Transform3D transform, Node3D target, float? health, string zoneId)
+	{
+		if (!_spawners.ContainsKey(id)) return null;
+		var pool = _spawners[id];
+		var spawner = pool.Pop();
+		spawner.Transform = transform;
+		spawner.Target = target;
+		spawner.Health = health;
+		spawner.ZoneId = zoneId;
+		return spawner;
+	}
+
+	public void Release(string id, Enemy e)
+	{
+		e.Deactivate();
+		e.GetParent()?.RemoveChild(e);
+		_pools[id].Push(e);
+	}
+
+	public void ReleaseSpawner(string id, EnemySpawner s)
+	{
+		if (!_spawners.ContainsKey(id))
+		{
+			_spawners[id] = new Stack<EnemySpawner>();
+		}
+
+		s.GetParent()?.RemoveChild(s);
+		_spawners[id].Push(s);
+	}
+
+	public override void _ExitTree()
+	{
+		foreach (var (enemy, handler) in _handlers)
+		{
+			if (IsInstanceValid(enemy))
+			{
+				enemy.DespawnEnemy -= handler;
+			}
+		}
+		_handlers.Clear();
+		_pools.Clear();
+	}
+
+}

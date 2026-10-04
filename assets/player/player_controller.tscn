@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://bhmbwsh0ud76"]
+
+[ext_resource type="Script" uid="uid://cpyn7xy4j8f0t" path="res://assets/player/PlayerController.cs" id="1_m730s"]
+[ext_resource type="Script" uid="uid://ctjnmnyaycxxm" path="res://assets/player/CameraController.cs" id="2_id1gd"]
+[ext_resource type="Script" uid="uid://brgitvblonhgk" path="res://assets/player/CameraEffects.cs" id="3_uy1re"]
+[ext_resource type="Script" uid="uid://bs7exfcdam3wf" path="res://assets/player/MouseCapture.cs" id="4_bd7e1"]
+[ext_resource type="Script" uid="uid://deqdsaxm5hi6g" path="res://assets/player/EdgeFrictionRayCast.cs" id="5_dnxvh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lraay"]
+height = 1.65
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_lraay"]
+height = 1.65
+
+[node name="PlayerController" type="CharacterBody3D" unique_id=1122504872 node_paths=PackedStringArray("CollisionShape", "EdgeFrictionRayCast", "CameraController") groups=["Player"]]
+script = ExtResource("1_m730s")
+CollisionShape = NodePath("CollisionShape3D")
+EdgeFrictionRayCast = NodePath("EdgeFrictionRayCast")
+CameraController = NodePath("CameraController")
+Deceleration = 3.0
+AirAcceleration = 1.0
+StopSpeed = 5.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=636363806]
+shape = SubResource("CapsuleShape3D_lraay")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1833173276]
+mesh = SubResource("CapsuleMesh_lraay")
+
+[node name="CameraController" type="Node3D" parent="." unique_id=1399580411 node_paths=PackedStringArray("PlayerController", "MouseCaptureComponent")]
+script = ExtResource("2_id1gd")
+PlayerController = NodePath("..")
+MouseCaptureComponent = NodePath("../MouseCapture")
+
+[node name="Camera3D" type="Camera3D" parent="CameraController" unique_id=1567863496]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+script = ExtResource("3_uy1re")
+
+[node name="MouseCapture" type="Node" parent="." unique_id=1422419431]
+script = ExtResource("4_bd7e1")
+
+[node name="EdgeFrictionRayCast" type="RayCast3D" parent="." unique_id=93128068 node_paths=PackedStringArray("PlayerController")]
+script = ExtResource("5_dnxvh")
+PlayerController = NodePath("..")

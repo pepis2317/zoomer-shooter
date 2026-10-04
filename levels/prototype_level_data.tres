@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://op86bgeq1ic0"]
+
+[ext_resource type="Script" uid="uid://b4db3hvdneoku" path="res://assets/systems/LevelData.cs" id="1_60qx3"]
+[ext_resource type="Resource" uid="uid://ckasqvasi2py1" path="res://levels/shotgun_grunt_pool.tres" id="1_jiqt2"]
+
+[resource]
+script = ExtResource("1_60qx3")
+EnemyPools = Array[Object]([ExtResource("1_jiqt2")])
+metadata/_custom_type_script = "uid://b4db3hvdneoku"

@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://dppenodmvkm8l"]
+
+[ext_resource type="Script" uid="uid://drow3ovpdc534" path="res://assets/enemies/EnemySpawner.cs" id="1_18cch"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_77dwk"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_18cch"]
+
+[node name="ShotgunGruntSpawner" type="Marker3D" unique_id=157356861 node_paths=PackedStringArray("Mesh")]
+script = ExtResource("1_18cch")
+Mesh = NodePath("MeshInstance3D")
+Id = "shotgun_grunt"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1826653617]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_77dwk")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" unique_id=1557093773]
+transform = Transform3D(0.355, 0, 0, 0, -1.5517543e-08, 0.355, 0, -0.355, -1.5517543e-08, 0, 0, -0.6226795)
+mesh = SubResource("PrismMesh_18cch")

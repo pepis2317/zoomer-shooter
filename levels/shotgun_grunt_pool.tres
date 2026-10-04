@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PoolResource" format=3 uid="uid://ckasqvasi2py1"]
+
+[ext_resource type="PackedScene" uid="uid://gh5any5myl8h" path="res://assets/enemies/shotgun_grunt/shotgun_grunt.tscn" id="1_55nf5"]
+[ext_resource type="Script" uid="uid://c0gik8km31rc3" path="res://assets/systems/PoolResource.cs" id="1_gtrte"]
+
+[resource]
+script = ExtResource("1_gtrte")
+Scene = ExtResource("1_55nf5")
+metadata/_custom_type_script = "uid://c0gik8km31rc3"

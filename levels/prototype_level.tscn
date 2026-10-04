@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://bkss27s8kaf3"]
+
+[ext_resource type="Script" uid="uid://iqrann4odew4" path="res://levels/PrototypeLevel.cs" id="1_6lfjr"]
+[ext_resource type="Resource" uid="uid://op86bgeq1ic0" path="res://levels/prototype_level_data.tres" id="2_i5e4g"]
+[ext_resource type="PackedScene" uid="uid://cnufiq3ko6vje" path="res://assets/player/player_spawner.tscn" id="3_6lfjr"]
+[ext_resource type="PackedScene" uid="uid://ddagjfuj2wwya" path="res://assets/environment/world_environment.tscn" id="3_htrvu"]
+[ext_resource type="Material" uid="uid://bsaqe5tcaqjj2" path="res://trenchbroom/textures/dotgrid/dark/dark_texture7_dotgrid.tres" id="4_6lfjr"]
+[ext_resource type="Script" uid="uid://bjeldwi2xlix2" path="res://assets/enemies/EnemyPools.cs" id="6_pvbb1"]
+[ext_resource type="PackedScene" uid="uid://dppenodmvkm8l" path="res://assets/enemies/shotgun_grunt/shotgun_grunt_spawner.tscn" id="7_pvbb1"]
+[ext_resource type="Script" uid="uid://bn2d4s11mjkow" path="res://assets/systems/EnemyZone.cs" id="9_rl8gb"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lraay"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lraay"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lraay"]
+size = Vector3(100, 1, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r0d4x"]
+size = Vector3(13.10907, 6.4434814, 22.941895)
+
+[node name="PrototypeLevel" type="Node3D" unique_id=1389291507]
+script = ExtResource("1_6lfjr")
+LevelData = ExtResource("2_i5e4g")
+
+[node name="PlayerSpawner" parent="." unique_id=596923497 instance=ExtResource("3_6lfjr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7867801, 0.5249997, 28.26519)
+
+[node name="Node3D" parent="." unique_id=805278138 instance=ExtResource("3_htrvu")]
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1130368656]
+physics_material_override = SubResource("PhysicsMaterial_lraay")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=968700788]
+shape = SubResource("BoxShape3D_lraay")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=57667771]
+material_override = ExtResource("4_6lfjr")
+mesh = SubResource("BoxMesh_lraay")
+
+[node name="EnemyPools" type="Node" parent="." unique_id=732426149]
+script = ExtResource("6_pvbb1")
+
+[node name="zone1" type="Area3D" parent="." unique_id=1229407150]
+script = ExtResource("9_rl8gb")
+ZoneId = "zone_1"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="zone1" unique_id=672370958]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2429132, 2.7217407, 11.9471035)
+shape = SubResource("BoxShape3D_r0d4x")
+
+[node name="zone2" type="Area3D" parent="." unique_id=982131969]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.3832655, 0, 0)
+script = ExtResource("9_rl8gb")
+ZoneId = "zone_2"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="zone2" unique_id=1051052285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2429132, 2.7217407, 11.9471035)
+shape = SubResource("BoxShape3D_r0d4x")
+
+[node name="ShotgunGruntSpawner" parent="." unique_id=157356861 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 20.982103)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner2" parent="." unique_id=1593598940 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8549542, 0.5, 20.014343)
+ZoneId = "zone_2"

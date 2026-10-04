@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cnufiq3ko6vje"]
+
+[ext_resource type="Script" uid="uid://cqu1f1f8twcof" path="res://assets/player/PlayerSpawner.cs" id="1_f7gpd"]
+[ext_resource type="PackedScene" uid="uid://bhmbwsh0ud76" path="res://assets/player/player_controller.tscn" id="2_coko4"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_lraay"]
+height = 1.65
+
+[sub_resource type="PrismMesh" id="PrismMesh_r0d4x"]
+
+[node name="PlayerSpawner" type="Marker3D" unique_id=596923497 node_paths=PackedStringArray("Mesh")]
+script = ExtResource("1_f7gpd")
+PlayerScene = ExtResource("2_coko4")
+Mesh = NodePath("MeshInstance3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=880742583]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_lraay")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" unique_id=588673008]
+transform = Transform3D(0.44, 0, 0, 0, -1.9233012e-08, 0.44, 0, -0.44, -1.9233012e-08, 0, 0, -0.6171547)
+mesh = SubResource("PrismMesh_r0d4x")
