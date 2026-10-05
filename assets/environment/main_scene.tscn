@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://dep3aefse0y3y"]
 
 [ext_resource type="PackedScene" uid="uid://bkss27s8kaf3" path="res://levels/prototype_level.tscn" id="1_lc4kx"]
-[ext_resource type="Script" uid="uid://hws0kxkt6oni" path="res://assets/systems/ZoneManager.cs" id="2_ro1ol"]
 
 [node name="MainScene" type="Node" unique_id=1657485569]
 
@@ -14,6 +13,3 @@
 [node name="EnemyNavigationManager" type="Node" parent="Managers" unique_id=1123732833]
 
 [node name="AabbCollisionManager" type="Node" parent="Managers" unique_id=1758014601]
-
-[node name="ZoneManager" type="Node" parent="Managers" unique_id=1812529621]
-script = ExtResource("2_ro1ol")

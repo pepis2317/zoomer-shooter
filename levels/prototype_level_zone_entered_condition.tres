@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ZoneEnteredCondition" format=3 uid="uid://dx4f0whr1jdm0"]
+
+[ext_resource type="Script" uid="uid://dtdmsknwky80y" path="res://assets/systems/ZoneEnteredCondition.cs" id="1_jrbiv"]
+
+[resource]
+script = ExtResource("1_jrbiv")
+AreaId = "area_entered_test"
+metadata/_custom_type_script = "uid://dtdmsknwky80y"

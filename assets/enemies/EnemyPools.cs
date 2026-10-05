@@ -14,7 +14,7 @@ public partial class EnemyPools : Node
 		Instance = this;
 	}
 
-	public void LoadEnemies(Godot.Collections.Array<PoolResource> entries)
+	public void LoadEnemies(Godot.Collections.Array<PoolResource> entries, Node3D target)
 	{
 		foreach (var entry in entries)
 		{
@@ -26,6 +26,7 @@ public partial class EnemyPools : Node
 				id = enemy.Id;
 				enemy.Deactivate();
 				Enemy.DespawnEnemyEventHandler handler = () => Release(enemy.Id, enemy);
+				enemy.Target = target;
 				enemy.DespawnEnemy += handler;
 				_handlers[enemy] = handler;
 				stack.Push(enemy);
@@ -35,7 +36,7 @@ public partial class EnemyPools : Node
 		}
 	}
 
-	public Enemy Acquire(string id, Transform3D transform, Node3D target, float? health, string zoneId)
+	public Enemy Acquire(string id, Transform3D transform, float? health, string zoneId)
 	{
 		var pool = _pools[id];
 		Enemy enemy;
@@ -53,19 +54,19 @@ public partial class EnemyPools : Node
 		}
 		enemy.Activate();
 		enemy.Transform = transform;
-		enemy.Target = target;
 		enemy.Health.CurrentHealth = health == null ? enemy.Health.MaxHealth : (float)health;
 		enemy.ZoneId = zoneId;
+		GD.Print("COUNT: ", pool.Count);
+
 		return enemy;
 	}
 
-	public EnemySpawner AcquireSpawner(string id, Transform3D transform, Node3D target, float? health, string zoneId)
+	public EnemySpawner AcquireSpawner(string id, Transform3D transform, float? health, string zoneId)
 	{
 		if (!_spawners.ContainsKey(id)) return null;
 		var pool = _spawners[id];
 		var spawner = pool.Pop();
 		spawner.Transform = transform;
-		spawner.Target = target;
 		spawner.Health = health;
 		spawner.ZoneId = zoneId;
 		return spawner;

@@ -21,6 +21,7 @@ EnemyNavigationManager="*uid://bea7ibo4hvy37"
 AabbCollisionManager="*uid://csgf8bbihmkwl"
 EnemyPools="*uid://bjeldwi2xlix2"
 ZoneManager="*uid://hws0kxkt6oni"
+MapEvents="*uid://u2mhnfcykbsv"
 
 [display]
 

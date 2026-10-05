@@ -20,7 +20,6 @@ public partial class Health : Node
 		CurrentHealth -= actualDamage;
 		EmitSignal(SignalName.DamageTaken, actualDamage, source, direction, knockbackForce, position);
 		EmitSignal(SignalName.HealthChanged);
-		// GD.Print(GetParent().Name, " took ", actualDamage, " damage. health: ", CurrentHealth, "/", MaxHealth);
 		if (CurrentHealth <= 0)
 		{
 			HandleDeath();
@@ -44,6 +43,5 @@ public partial class Health : Node
 		}
 		IsAlive = false;
 		EmitSignal(SignalName.Died);
-		// GD.Print(GetParent().Name, "DIED");
 	}
 }

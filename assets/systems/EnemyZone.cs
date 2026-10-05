@@ -1,6 +1,4 @@
 using Godot;
-using System;
-using System.Collections.Generic;
 
 public partial class EnemyZone : Area3D
 {
@@ -15,6 +13,7 @@ public partial class EnemyZone : Area3D
 	{
 		if(body is PlayerController player)
 		{
+			GD.Print("entered: ", ZoneId);
 			ZoneManager.Instance.ChangeZone(GetParent(), ZoneId, player);
 		}
 	}

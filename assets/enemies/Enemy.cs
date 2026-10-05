@@ -12,7 +12,6 @@ public abstract partial class Enemy : Node3D
 
 	[ExportCategory("Groups")]
 	[Export] public string[] EnemyGroups = Array.Empty<string>();
-
 	[ExportCategory("Settings")]
 	[Export] public float KnockbackFriction = 5f;
 	[Export] public float FloorCheckDistance = 2f;
@@ -153,14 +152,13 @@ public abstract partial class Enemy : Node3D
 	public void Deactivate()
 	{
 		Hide();
-		Target = null;
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 
 	public void PlaceSpawner()
 	{
 		if (Health.CurrentHealth <= 0) return;
-		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Target, Health.CurrentHealth, ZoneId);
+		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Health.CurrentHealth, ZoneId);
 		GetParent().AddChild(spawner);
 		EmitSignal(SignalName.DespawnEnemy);
 	}

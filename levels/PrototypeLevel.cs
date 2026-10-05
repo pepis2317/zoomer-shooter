@@ -13,14 +13,8 @@ public partial class PrototypeLevel : Node
 			return;
 		}
 		playerSpawner.SpawnPlayer(this);
-		EnemyPools.Instance.LoadEnemies(LevelData.EnemyPools);
-		// ZoneManager.Instance.InitializeZones();
-		// var spawners = GetTree().GetNodesInGroup("EnemySpawner").OfType<EnemySpawner>();
-		// foreach (var spawner in spawners)
-		// {
-		// 	spawner.Target = player;
-		// 	spawner.SpawnEnemy(this);
-		// }
+		var player = (PlayerController)GetTree().GetFirstNodeInGroup("Player");
+		EnemyPools.Instance.LoadEnemies(LevelData.EnemyPools, player);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -8,6 +8,7 @@ public partial class EnemySpawner : Marker3D
 	[Export] public string Id;
 
 	[ExportCategory("Spawn Zone")]
+	[Export] public bool IgnoreZones;
 	[Export] public string ZoneId;
 
 	[ExportCategory("Misc")]
@@ -24,12 +25,12 @@ public partial class EnemySpawner : Marker3D
 
 	public void SpawnEnemy(Node parent)
 	{
-		if (ZoneId == null)
+		if (ZoneId == null && !IgnoreZones)
 		{
 			GD.Print("zone not set");
 			return;
 		}
-		if(Id == null)
+		if (Id == null)
 		{
 			GD.Print("enemy id not set");
 			return;
@@ -37,7 +38,7 @@ public partial class EnemySpawner : Marker3D
 		var groundPos = FindGroundPosition(GlobalPosition, Height);
 		var transform = new Transform3D(GlobalTransform.Basis, groundPos);
 
-		var enemy = EnemyPools.Instance.Acquire(Id, transform, Target, Health, ZoneId);
+		var enemy = EnemyPools.Instance.Acquire(Id, transform, Health, ZoneId);
 		parent.AddChild(enemy);
 		EnemyPools.Instance.CallDeferred(EnemyPools.MethodName.ReleaseSpawner, Id, this);
 	}
@@ -58,8 +59,7 @@ public partial class EnemySpawner : Marker3D
 			return hitPoint + Vector3.Up * (capsuleHeight / 2f); // lift by half capsule so feet sit on the hit point
 		}
 
-		GD.PushWarning("PlayerSpawner: no ground found below spawn point, using raw marker position");
+		GD.PushWarning("EnemySpawner: no ground found below spawn point, using raw marker position");
 		return origin;
 	}
-
 }
