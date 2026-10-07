@@ -180,7 +180,6 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		Velocity = Vector3.Zero;
 		Show();
-		EnemyNavigationManager.Instance.Register(this);
 		ProcessMode = ProcessModeEnum.Inherit;
 	}
 
@@ -188,7 +187,6 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
-		EnemyNavigationManager.Instance.UnRegister(this);
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 

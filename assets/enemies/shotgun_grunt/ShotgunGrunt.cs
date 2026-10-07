@@ -6,6 +6,8 @@ public partial class ShotgunGrunt : Enemy
 	[Export] public float RoamRadius = 1f;
 	[Export] public float RoamSpeed = 8f;
 	[Export] public float RoamJitter = 0.5f;
+	[Export] public float RepositionCooldown = 3f;
+	[Export] public float RepositionBoost = 10f;
 	public bool IsStaggered = false;
 	public bool IsRoaming = false;
 	public float EnemyDeceleration;

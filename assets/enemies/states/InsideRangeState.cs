@@ -13,15 +13,16 @@ public partial class InsideRangeState : UnstaggeredState
         if (GodotObject.IsInstanceValid(_enemy.Target))
         {
             var distSquared = (_enemy.Target.GlobalPosition - _enemy.GlobalPosition).LengthSquared();
-            var range = _enemy.EffectiveRange;
+            var range = _enemy.EffectiveRange * 1.5f;
             if (distSquared > range * range)
             {
+                GD.Print("outsiderange");
                 SendTrigger(EnemyStateTriggers.OUTSIDERANGE);
             }
             InsideRangeBehavior(delta);
         }
     }
-    protected virtual void InsideRangeBehavior(float delta){}
+    protected virtual void InsideRangeBehavior(float delta) { }
 
     protected override void OnExit()
     {

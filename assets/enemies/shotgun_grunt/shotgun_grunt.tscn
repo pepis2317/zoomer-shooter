@@ -10,6 +10,7 @@
 
 [node name="ShotgunGrunt" type="Node3D" unique_id=1608073382 node_paths=PackedStringArray("NavigationAgent", "Health", "Stamina") groups=["Enemy"]]
 script = ExtResource("1_eebo5")
+RepositionBoost = 5.0
 NavigationAgent = NodePath("NavigationAgent3D")
 Health = NodePath("Health")
 Stamina = NodePath("Stamina")
