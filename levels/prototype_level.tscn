@@ -27,14 +27,13 @@ size = Vector3(13.10907, 6.4434814, 22.941895)
 [sub_resource type="BoxShape3D" id="BoxShape3D_25cnb"]
 size = Vector3(6.1118164, 6.298828, 3.774792)
 
+[sub_resource type="NavigationMesh" id="NavigationMesh_lraay"]
+vertices = PackedVector3Array(-49.5, 1, -49.5, -49.5, 1, 49.5, 49.5, 1, 49.5, 49.5, 1, -49.5)
+polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
+
 [node name="PrototypeLevel" type="Node3D" unique_id=1389291507]
 script = ExtResource("1_6lfjr")
 LevelData = ExtResource("2_i5e4g")
-
-[node name="PlayerSpawner" parent="." unique_id=596923497 instance=ExtResource("3_6lfjr")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7867801, 0.5249997, 28.26519)
-
-[node name="Node3D" parent="." unique_id=805278138 instance=ExtResource("3_htrvu")]
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1130368656]
 physics_material_override = SubResource("PhysicsMaterial_lraay")
@@ -48,6 +47,11 @@ mesh = SubResource("BoxMesh_lraay")
 
 [node name="EnemyPools" type="Node" parent="." unique_id=732426149]
 script = ExtResource("6_pvbb1")
+
+[node name="PlayerSpawner" parent="." unique_id=596923497 instance=ExtResource("3_6lfjr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7867801, 0.5249997, 28.26519)
+
+[node name="Node3D" parent="." unique_id=805278138 instance=ExtResource("3_htrvu")]
 
 [node name="zone1" type="Area3D" parent="." unique_id=1229407150]
 script = ExtResource("9_rl8gb")
@@ -86,3 +90,6 @@ AreaId = "area_entered_test"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnZoneTest" unique_id=129477467]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5559082, 2.649414, 2.386396)
 shape = SubResource("BoxShape3D_25cnb")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=886378853]
+navigation_mesh = SubResource("NavigationMesh_lraay")

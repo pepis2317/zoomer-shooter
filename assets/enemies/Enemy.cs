@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public abstract partial class Enemy : Node3D
+public abstract partial class Enemy : Node3D, INavigationTickable
 {
 	[Signal] public delegate void DespawnEnemyEventHandler();
 
@@ -14,6 +14,7 @@ public abstract partial class Enemy : Node3D
 	[ExportCategory("Groups")]
 	[Export] public string[] EnemyGroups = Array.Empty<string>();
 	[ExportCategory("Settings")]
+	[Export] public float MoveSpeed = 12f;
 	[Export] public float KnockbackFriction = 5f;
 	[Export] public float FloorCheckDistance = 2f;
 	[Export] public uint GeometryCollisionMask = 1;
@@ -39,6 +40,7 @@ public abstract partial class Enemy : Node3D
 	protected StateMachine _staggeredState = new StaggeredState();
 
 	public Vector3 Velocity;
+	public int SkipCounter = 0;
 	public Vector3 RepositionDirection;
 	public Vector3 RepositionPoint;
 	public Vector3 ExternalVelocity
@@ -178,6 +180,7 @@ public abstract partial class Enemy : Node3D
 	{
 		Velocity = Vector3.Zero;
 		Show();
+		EnemyNavigationManager.Instance.Register(this);
 		ProcessMode = ProcessModeEnum.Inherit;
 	}
 
@@ -185,6 +188,7 @@ public abstract partial class Enemy : Node3D
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
+		EnemyNavigationManager.Instance.UnRegister(this);
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 
@@ -194,5 +198,59 @@ public abstract partial class Enemy : Node3D
 		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Health.CurrentHealth, ZoneId);
 		GetParent().AddChild(spawner);
 		EmitSignal(SignalName.DespawnEnemy);
+	}
+
+	public void NavigationTick()
+	{
+		if (!IsInstanceValid(Target))
+		{
+			return;
+		}
+
+		var distSquared = GlobalPosition.DistanceSquaredTo(Target.GlobalPosition);
+		var farDist = EnemyNavigationManager.Instance.FarDistance;
+		var veryFarDist = EnemyNavigationManager.Instance.VeryFarDistance;
+		var farDistSquared = farDist * farDist;
+		var veryFarDistSquared = veryFarDist * veryFarDist;
+
+		if (distSquared > farDistSquared && (SkipCounter++ % 2) != 0)
+		{
+			return;
+		}
+		if (distSquared > veryFarDistSquared && (SkipCounter++ % 4) != 0)
+		{
+			return;
+		}
+		var toEnemy = GlobalPosition - Target.GlobalPosition;
+		toEnemy.Y = 0;
+		var dir = toEnemy.LengthSquared() > 0.0001f ? toEnemy.Normalized() : Vector3.Forward;
+		Vector3 point = Target.GlobalPosition + dir * EffectiveRange;
+		InitReposition(point);
+	}
+
+	public void InitReposition(Vector3 position)
+	{
+		IsRepositioning = true;
+		NavigationAgent.TargetPosition = position;
+		RepositionDirection = RepositionPoint - GlobalPosition;
+	}
+	
+	public void HandleFollowNavigation(float delta)
+	{
+		if (NavigationAgent.IsNavigationFinished())
+		{
+			Velocity = Vector3.Zero;
+			NavigationAgent.Velocity = Vector3.Zero;
+			IsRepositioning = false;
+			return;
+		}
+
+		var nextPos = NavigationAgent.GetNextPathPosition();
+		var direction = nextPos - GlobalPosition;
+		direction.Y = 0;
+		direction = direction.Normalized();
+
+		var desiredVelocity = direction * MoveSpeed;
+		Velocity = Velocity.MoveToward(desiredVelocity, Acceleration * delta);
 	}
 }

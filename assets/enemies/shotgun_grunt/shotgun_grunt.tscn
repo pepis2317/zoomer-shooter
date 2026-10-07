@@ -14,6 +14,7 @@ NavigationAgent = NodePath("NavigationAgent3D")
 Health = NodePath("Health")
 Stamina = NodePath("Stamina")
 Id = "shotgun_grunt"
+EffectiveRange = 5.0
 
 [node name="Stamina" type="Node" parent="." unique_id=1007760804]
 script = ExtResource("2_ateqg")

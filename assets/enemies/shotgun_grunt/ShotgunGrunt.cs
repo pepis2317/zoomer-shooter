@@ -2,7 +2,6 @@ using Godot;
 
 public partial class ShotgunGrunt : Enemy
 {
-	[Export] public float MoveSpeed = 12f;
 	[Export] public float RoamDistance = 5f;
 	[Export] public float RoamRadius = 1f;
 	[Export] public float RoamSpeed = 8f;
