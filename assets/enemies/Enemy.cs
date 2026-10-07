@@ -8,6 +8,7 @@ public abstract partial class Enemy : Node3D
 	[ExportCategory("References")]
 	[Export] public NavigationAgent3D NavigationAgent;
 	[Export] public Health Health;
+	[Export] public Stamina Stamina;
 	[Export] public string Id;
 
 	[ExportCategory("Groups")]
@@ -31,6 +32,11 @@ public abstract partial class Enemy : Node3D
 	private Vector3[] _sideDirs = { Vector3.Forward, Vector3.Back, Vector3.Left, Vector3.Right };
 	private float _gravity;
 	private float _minFloorDot = Mathf.Cos(Mathf.DegToRad(45f));
+	protected StateMachine _rootState = new RootState();
+	protected StateMachine _unstaggeredState = new UnstaggeredState();
+	protected StateMachine _insideRange = new InsideRangeState();
+	protected StateMachine _outsideRange = new OutsideRangeState();
+	protected StateMachine _staggeredState = new StaggeredState();
 
 	public Vector3 Velocity;
 	public Vector3 RepositionDirection;
@@ -56,6 +62,31 @@ public abstract partial class Enemy : Node3D
 			AddToGroup(group);
 		}
 		Health.DamageTaken += OnDamageTaken;
+		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		_rootState.Node = this;
+		_unstaggeredState.Node = this;
+		_staggeredState.Node = this;
+		_insideRange.Node = this;
+		_outsideRange.Node = this;
+
+		_rootState.LoadSubState(_unstaggeredState);
+		_rootState.LoadSubState(_staggeredState);
+
+		_unstaggeredState.LoadSubState(_outsideRange);
+		_unstaggeredState.LoadSubState(_insideRange);
+
+		_rootState.AddTransition(_unstaggeredState, _staggeredState, EnemyStateTriggers.STAGGERED);
+		_rootState.AddTransition(_staggeredState, _unstaggeredState, EnemyStateTriggers.UNSTAGGERED);
+
+		_unstaggeredState.AddTransition(_outsideRange, _insideRange, EnemyStateTriggers.INSIDERANGE);
+		_unstaggeredState.AddTransition(_insideRange, _outsideRange, EnemyStateTriggers.OUTSIDERANGE);
+
+		_rootState.EnterStateMachine();
+	}
+
+	private void OnStaminaDamageTaken(float amount)
+	{
+		GD.Print("stamina damage taken");
 	}
 
 	private void OnDamageTaken(float amount, Node3D source, Vector3 direction, float knockbackForce, Vector3 position)
@@ -140,6 +171,7 @@ public abstract partial class Enemy : Node3D
 		{
 			Velocity = Velocity.Slide(wallNormal);
 		}
+		_unstaggeredState.UpdateStateMachine((float)delta);
 	}
 
 	public void Activate()
@@ -152,6 +184,7 @@ public abstract partial class Enemy : Node3D
 	public void Deactivate()
 	{
 		Hide();
+		_unstaggeredState.ExitStateMachine();
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 

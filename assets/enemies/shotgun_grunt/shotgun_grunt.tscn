@@ -1,17 +1,22 @@
 [gd_scene format=3 uid="uid://gh5any5myl8h"]
 
 [ext_resource type="Script" uid="uid://cat8rkv6drbj4" path="res://assets/enemies/shotgun_grunt/ShotgunGrunt.cs" id="1_eebo5"]
+[ext_resource type="Script" uid="uid://cei7g133setft" path="res://assets/systems/Stamina.cs" id="2_ateqg"]
 [ext_resource type="Script" uid="uid://c4x4x40avbigf" path="res://assets/systems/Health.cs" id="3_lvbic"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_lraay"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_lraay"]
 
-[node name="ShotgunGrunt" type="Node3D" unique_id=1608073382 node_paths=PackedStringArray("NavigationAgent", "Health") groups=["Enemy"]]
+[node name="ShotgunGrunt" type="Node3D" unique_id=1608073382 node_paths=PackedStringArray("NavigationAgent", "Health", "Stamina") groups=["Enemy"]]
 script = ExtResource("1_eebo5")
 NavigationAgent = NodePath("NavigationAgent3D")
 Health = NodePath("Health")
+Stamina = NodePath("Stamina")
 Id = "shotgun_grunt"
+
+[node name="Stamina" type="Node" parent="." unique_id=1007760804]
+script = ExtResource("2_ateqg")
 
 [node name="Health" type="Node" parent="." unique_id=1771232659]
 script = ExtResource("3_lvbic")

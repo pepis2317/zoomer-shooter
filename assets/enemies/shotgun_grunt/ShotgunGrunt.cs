@@ -11,6 +11,12 @@ public partial class ShotgunGrunt : Enemy
 	public bool IsRoaming = false;
 	public float EnemyDeceleration;
 	private float _roamAngle;
+	public override void _Ready()
+	{
+		_outsideRange = new SGOutsideRangeState();
+		_insideRange = new SGInsideRangeState();
+		base._Ready();
+	}
 	public override void _PhysicsProcess(double delta)
 	{
 		base._PhysicsProcess(delta);

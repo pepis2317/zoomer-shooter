@@ -19,7 +19,7 @@ public partial class Health : Node
 		var actualDamage = Mathf.Max(0, amount);
 		CurrentHealth -= actualDamage;
 		EmitSignal(SignalName.DamageTaken, actualDamage, source, direction, knockbackForce, position);
-		EmitSignal(SignalName.HealthChanged);
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
 		if (CurrentHealth <= 0)
 		{
 			HandleDeath();
@@ -33,7 +33,7 @@ public partial class Health : Node
 		}
 		var actualHeal = Mathf.Max(0, amount);
 		CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + actualHeal);
-		EmitSignal(SignalName.Died);
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
 	}
 	public void HandleDeath()
 	{
