@@ -55,7 +55,6 @@ public partial class AabbCollisionManager : Node
 
 	public void UnRegister(CollisionArea area)
 	{
-		GD.Print("unregistering");
 		_pendingRemoval.Add(area);
 	}
 
@@ -174,7 +173,7 @@ public partial class AabbCollisionManager : Node
 				{
 					split = mid;
 				}
-			} while (step > 1) ;
+			}
 		} while (step > 1);
 		return split;
 	}
