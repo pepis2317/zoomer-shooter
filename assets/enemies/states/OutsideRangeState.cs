@@ -16,7 +16,6 @@ public partial class OutsideRangeState : UnstaggeredState
             var range = _enemy.EffectiveRange *1.5f;
             if (distSquared <= range * range)
             {
-                GD.Print("insiderange");
                 SendTrigger(EnemyStateTriggers.INSIDERANGE);
             }
             OutsideRangeBehavior(delta);

@@ -9,6 +9,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	[Export] public NavigationAgent3D NavigationAgent;
 	[Export] public Health Health;
 	[Export] public Stamina Stamina;
+	[Export] public CollisionArea CollisionArea;
 	[Export] public string Id;
 
 	[ExportCategory("Groups")]
@@ -23,7 +24,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	[Export] public float EffectiveRange = 10f;
 	[Export] public float Acceleration = 5f;
 	[Export] public float Deceleration = 5f;
-	[Export] public float StopSpeed = 5f;
+	[Export] public float StopSpeed = 2f;
 	[Export] public float ExplosionDamage = 15f;
 	[Export] public float ExplosionKnockbackForce = 25f;
 	[Export] public float PushStrength = 1f;
@@ -65,6 +66,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		}
 		Health.DamageTaken += OnDamageTaken;
 		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		CollisionArea.BodyEntered += OnBodyEntered;
 		_rootState.Node = this;
 		_unstaggeredState.Node = this;
 		_staggeredState.Node = this;
@@ -84,6 +86,21 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		_unstaggeredState.AddTransition(_insideRange, _outsideRange, EnemyStateTriggers.OUTSIDERANGE);
 
 		_rootState.EnterStateMachine();
+	}
+
+	private void OnBodyEntered(CollisionArea body)
+	{
+		if (body.GetParent() is not Enemy enemy)
+		{
+			return;
+		}
+		IsRepositioning = false;
+		var away = GlobalPosition - enemy.GlobalPosition;
+		away.Y = 0f;
+		var push = away.Normalized() * PushStrength;
+
+		ExternalVelocity += push;
+		enemy.ExternalVelocity -= push;
 	}
 
 	private void OnStaminaDamageTaken(float amount)
@@ -156,6 +173,38 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		return found;
 	}
 
+	public void PMFriction(float delta)
+	{
+		var vel = Velocity;
+		var speed = Mathf.Sqrt(vel.X * vel.X + vel.Y * vel.Y + vel.Z * vel.Z);
+		if (speed < 0.1)
+		{
+			vel.X = 0;
+			vel.Z = 0;
+			Velocity = vel;
+			return;
+		}
+		var friction = Deceleration;
+		float drop = 0;
+		if (IsOnFloor())
+		{
+			var control = speed < StopSpeed ? StopSpeed : speed;
+			drop += control * friction * delta;
+		}
+		var newSpeed = speed - drop;
+		if (newSpeed < 0)
+		{
+			newSpeed = 0;
+		}
+		newSpeed /= speed;
+		vel *= newSpeed;
+		Velocity = vel;
+		if(Velocity > Vector3.Zero)
+		{
+			IsRepositioning = true;
+		}
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
 		Velocity += _externalVelocity;
@@ -173,6 +222,10 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		{
 			Velocity = Velocity.Slide(wallNormal);
 		}
+		if (!IsRepositioning)
+		{
+			PMFriction((float)delta);
+		}
 		_unstaggeredState.UpdateStateMachine((float)delta);
 	}
 
@@ -181,12 +234,14 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		Velocity = Vector3.Zero;
 		Show();
 		ProcessMode = ProcessModeEnum.Inherit;
+		AabbCollisionManager.Instance.Register(CollisionArea);
 	}
 
 	public void Deactivate()
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
+		AabbCollisionManager.Instance.UnRegister(CollisionArea);
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 
@@ -232,7 +287,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		NavigationAgent.TargetPosition = position;
 		RepositionDirection = RepositionPoint - GlobalPosition;
 	}
-	
+
 	public void HandleFollowNavigation(float delta)
 	{
 		if (NavigationAgent.IsNavigationFinished())

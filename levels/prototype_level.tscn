@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://cnufiq3ko6vje" path="res://assets/player/player_spawner.tscn" id="3_6lfjr"]
 [ext_resource type="PackedScene" uid="uid://ddagjfuj2wwya" path="res://assets/environment/world_environment.tscn" id="3_htrvu"]
 [ext_resource type="Material" uid="uid://bsaqe5tcaqjj2" path="res://trenchbroom/textures/dotgrid/dark/dark_texture7_dotgrid.tres" id="4_6lfjr"]
-[ext_resource type="Script" uid="uid://bjeldwi2xlix2" path="res://assets/enemies/EnemyPools.cs" id="6_pvbb1"]
 [ext_resource type="PackedScene" uid="uid://dppenodmvkm8l" path="res://assets/enemies/shotgun_grunt/shotgun_grunt_spawner.tscn" id="7_pvbb1"]
 [ext_resource type="PackedScene" uid="uid://b1b1c6jn07iwe" path="res://assets/enemies/shotgun_grunt/shotgun_grunt_dynamic_spawner.tscn" id="9_3sjje"]
 [ext_resource type="Script" uid="uid://bn2d4s11mjkow" path="res://assets/systems/EnemyZone.cs" id="9_rl8gb"]
@@ -44,9 +43,6 @@ shape = SubResource("BoxShape3D_lraay")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=57667771]
 material_override = ExtResource("4_6lfjr")
 mesh = SubResource("BoxMesh_lraay")
-
-[node name="EnemyPools" type="Node" parent="." unique_id=732426149]
-script = ExtResource("6_pvbb1")
 
 [node name="PlayerSpawner" parent="." unique_id=596923497 instance=ExtResource("3_6lfjr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7867801, 0.5249997, 28.26519)
