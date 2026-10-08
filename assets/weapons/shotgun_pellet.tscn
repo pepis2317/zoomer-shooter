@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bxqnnkbtvn8ii"]
+
+[ext_resource type="Script" uid="uid://xta3pad02xfb" path="res://assets/weapons/ShotgunPellet.cs" id="1_s2r2p"]
+[ext_resource type="Script" uid="uid://so4y8aknmog2" path="res://assets/systems/CollisionArea.cs" id="2_61si2"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lraay"]
+radius = 0.1
+height = 0.2
+
+[node name="ShotgunPellet" type="Node3D" unique_id=468483273 node_paths=PackedStringArray("CollisionArea")]
+script = ExtResource("1_s2r2p")
+CollisionArea = NodePath("CollisionArea")
+
+[node name="CollisionArea" type="Node3D" parent="." unique_id=1829188906]
+script = ExtResource("2_61si2")
+HalfExtents = Vector3(0.1, 0.1, 0.1)
+DebugDraw = true
+IsSweep = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=927719422]
+mesh = SubResource("SphereMesh_lraay")

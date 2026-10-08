@@ -22,6 +22,8 @@ AabbCollisionManager="*uid://csgf8bbihmkwl"
 EnemyPools="*uid://bjeldwi2xlix2"
 ZoneManager="*uid://hws0kxkt6oni"
 MapEvents="*uid://u2mhnfcykbsv"
+AttackTokenManager="*uid://j80nsot6m1o2"
+ProjectilePools="*uid://m6i50elqc2yg"
 
 [display]
 

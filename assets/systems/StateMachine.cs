@@ -43,7 +43,6 @@ public abstract class StateMachine
 		try
 		{
 			_subStates.Add(subState.GetType(), subState);
-			GD.Print("added");
 		}
 		catch (ArgumentException)
 		{

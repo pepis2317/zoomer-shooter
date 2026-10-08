@@ -56,7 +56,6 @@ public partial class EnemyPools : Node
 		enemy.Transform = transform;
 		enemy.Health.CurrentHealth = health == null ? enemy.Health.MaxHealth : (float)health;
 		enemy.ZoneId = zoneId;
-		GD.Print("COUNT: ", pool.Count);
 
 		return enemy;
 	}
@@ -74,6 +73,7 @@ public partial class EnemyPools : Node
 
 	public void Release(string id, Enemy e)
 	{
+		if(e.GetParent() == null) return;
 		e.Deactivate();
 		e.GetParent()?.RemoveChild(e);
 		_pools[id].Push(e);

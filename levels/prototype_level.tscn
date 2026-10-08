@@ -6,11 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://ddagjfuj2wwya" path="res://assets/environment/world_environment.tscn" id="3_htrvu"]
 [ext_resource type="Material" uid="uid://bsaqe5tcaqjj2" path="res://trenchbroom/textures/dotgrid/dark/dark_texture7_dotgrid.tres" id="4_6lfjr"]
 [ext_resource type="PackedScene" uid="uid://dppenodmvkm8l" path="res://assets/enemies/shotgun_grunt/shotgun_grunt_spawner.tscn" id="7_pvbb1"]
-[ext_resource type="PackedScene" uid="uid://b1b1c6jn07iwe" path="res://assets/enemies/shotgun_grunt/shotgun_grunt_dynamic_spawner.tscn" id="9_3sjje"]
 [ext_resource type="Script" uid="uid://bn2d4s11mjkow" path="res://assets/systems/EnemyZone.cs" id="9_rl8gb"]
-[ext_resource type="Script" uid="uid://o62qq20pbdk6" path="res://assets/systems/DynamicSpawnArea.cs" id="10_1wlit"]
-[ext_resource type="Script" uid="uid://db0ep6oo1b4g3" path="res://assets/systems/SpawnCondition.cs" id="10_mfg5r"]
-[ext_resource type="Resource" uid="uid://dx4f0whr1jdm0" path="res://levels/prototype_level_zone_entered_condition.tres" id="11_mfg5r"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lraay"]
 
@@ -22,9 +18,6 @@ size = Vector3(100, 1, 100)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r0d4x"]
 size = Vector3(13.10907, 6.4434814, 22.941895)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_25cnb"]
-size = Vector3(6.1118164, 6.298828, 3.774792)
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_lraay"]
 vertices = PackedVector3Array(-49.5, 1, -49.5, -49.5, 1, 49.5, 49.5, 1, 49.5, 49.5, 1, -49.5)
@@ -66,38 +59,49 @@ ZoneId = "zone_2"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2429132, 2.7217407, 11.9471035)
 shape = SubResource("BoxShape3D_r0d4x")
 
-[node name="ShotgunGruntSpawner" parent="." unique_id=157356861 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 20.982103)
+[node name="ShotgunGruntSpawner" parent="." unique_id=1967406385 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 22.543474)
 ZoneId = "zone_1"
 
-[node name="ShotgunGruntSpawner3" parent="." unique_id=288066960 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.715085, 0.5, 20.982103)
+[node name="ShotgunGruntSpawner3" parent="." unique_id=157356861 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 22.543474)
 ZoneId = "zone_1"
 
-[node name="ShotgunGruntSpawner4" parent="." unique_id=1455564100 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.6381927, 0.5, 20.982103)
+[node name="ShotgunGruntSpawner4" parent="." unique_id=1634078189 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1671915, 0.5, 22.543474)
 ZoneId = "zone_1"
 
-[node name="ShotgunGruntSpawner5" parent="." unique_id=1997843837 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.202202, 0.5, 20.982103)
+[node name="ShotgunGruntSpawner5" parent="." unique_id=1511567874 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.15655, 0.5, 22.543474)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner6" parent="." unique_id=2033856693 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.903358, 0.5, 22.543474)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner7" parent="." unique_id=1507585544 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 20.690695)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner8" parent="." unique_id=1608678356 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 20.690695)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner9" parent="." unique_id=887130772 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1671915, 0.5, 20.690695)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner10" parent="." unique_id=1921200858 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.15655, 0.5, 20.690695)
+ZoneId = "zone_1"
+
+[node name="ShotgunGruntSpawner11" parent="." unique_id=628892342 instance=ExtResource("7_pvbb1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.903358, 0.5, 20.690695)
 ZoneId = "zone_1"
 
 [node name="ShotgunGruntSpawner2" parent="." unique_id=1593598940 instance=ExtResource("7_pvbb1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8549542, 0.5, 20.014343)
 ZoneId = "zone_2"
-
-[node name="ShotgunGruntDynamicSpawner" parent="." unique_id=2062552961 instance=ExtResource("9_3sjje")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.3961525, 0.5, 19.039612)
-Conditions = Array[ExtResource("10_mfg5r")]([ExtResource("11_mfg5r")])
-
-[node name="SpawnZoneTest" type="Area3D" parent="." unique_id=854273257]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9284401, 0, 7.5864544)
-script = ExtResource("10_1wlit")
-AreaId = "area_entered_test"
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnZoneTest" unique_id=129477467]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5559082, 2.649414, 2.386396)
-shape = SubResource("BoxShape3D_25cnb")
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=886378853]
 navigation_mesh = SubResource("NavigationMesh_lraay")

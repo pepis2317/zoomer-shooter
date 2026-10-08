@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cat8rkv6drbj4" path="res://assets/enemies/shotgun_grunt/ShotgunGrunt.cs" id="1_eebo5"]
 [ext_resource type="Script" uid="uid://cei7g133setft" path="res://assets/systems/Stamina.cs" id="2_ateqg"]
+[ext_resource type="PackedScene" uid="uid://bxqnnkbtvn8ii" path="res://assets/weapons/shotgun_pellet.tscn" id="2_d18ie"]
 [ext_resource type="Script" uid="uid://so4y8aknmog2" path="res://assets/systems/CollisionArea.cs" id="2_lvbic"]
 [ext_resource type="Script" uid="uid://c4x4x40avbigf" path="res://assets/systems/Health.cs" id="3_lvbic"]
 
@@ -12,6 +13,9 @@
 [node name="ShotgunGrunt" type="Node3D" unique_id=1608073382 node_paths=PackedStringArray("NavigationAgent", "Health", "Stamina", "CollisionArea") groups=["Enemy"]]
 script = ExtResource("1_eebo5")
 RepositionBoost = 5.0
+ProjectileScene = ExtResource("2_d18ie")
+Accuracy = 50.0
+FiringDistance = 10.0
 NavigationAgent = NodePath("NavigationAgent3D")
 Health = NodePath("Health")
 Stamina = NodePath("Stamina")
@@ -24,7 +28,6 @@ PushStrength = 0.5
 [node name="CollisionArea" type="Node3D" parent="." unique_id=118363531]
 script = ExtResource("2_lvbic")
 HalfExtents = Vector3(0.5, 1, 0.5)
-DebugDraw = true
 
 [node name="Stamina" type="Node" parent="." unique_id=1007760804]
 script = ExtResource("2_ateqg")

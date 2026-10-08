@@ -1,5 +1,5 @@
+using System.Runtime.Serialization;
 using Godot;
-using System;
 
 public partial class SGInsideRangeState : InsideRangeState
 {
@@ -42,10 +42,33 @@ public partial class SGInsideRangeState : InsideRangeState
 		return _shotgunGrunt.GlobalPosition;
 	}
 
+	private bool CanFire()
+	{
+		var space = _shotgunGrunt.GetWorld3D().DirectSpaceState;
+		Vector3 pos = _shotgunGrunt.GlobalPosition;
+		_shotgunGrunt.RangeQuery.From = pos;
+		_shotgunGrunt.RangeQuery.To = pos + _shotgunGrunt.Basis * Vector3.Forward * _shotgunGrunt.FiringDistance;
+
+		var result = space.IntersectRay(_shotgunGrunt.RangeQuery);
+		if (result.Count == 0) return false;
+		if (_shotgunGrunt.FireTimer <= 0)
+		{
+			if(GD.Randf() < 0.5f)
+			{
+				return AttackTokenManager.Instance.RequestAttack(_shotgunGrunt.AttackCost);
+			}
+			return false;
+		}
+		return false;
+	}
+
 	protected override void InsideRangeBehavior(float delta)
 	{
 		base.InsideRangeBehavior(delta);
-
+		if (CanFire())
+		{
+			_shotgunGrunt.FireWeapon();
+		}
 		if (!_shotgunGrunt.IsRepositioning)
 		{
 			_repositionTimer += delta;

@@ -6,4 +6,5 @@
 [resource]
 script = ExtResource("1_gtrte")
 Scene = ExtResource("1_55nf5")
+InitialSize = 150
 metadata/_custom_type_script = "uid://c0gik8km31rc3"
