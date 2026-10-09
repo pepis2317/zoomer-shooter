@@ -47,6 +47,17 @@ public partial class AabbCollisionManager : Node
 		Instance = this;
 	}
 
+	public void Clear()
+	{
+		_areas.Clear();
+		_pendingRemoval.Clear();
+		_aabbs = null;
+		_entries = null;
+		_nodes = null;
+		_nodeCount = 0;
+		_results.Clear();
+	}
+
 	public void Register(CollisionArea area)
 	{
 		_areas.Add(area);

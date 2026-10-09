@@ -249,6 +249,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		if (Health.CurrentHealth <= 0) return;
 		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Health.CurrentHealth, ZoneId);
+		if(spawner == null) return;
 		GetParent().AddChild(spawner);
 		EmitSignal(SignalName.DespawnEnemy);
 	}

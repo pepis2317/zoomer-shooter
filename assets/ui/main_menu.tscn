@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bbqbhnok51pyq"]
+
+[ext_resource type="Script" uid="uid://cliifi0vx4md2" path="res://assets/ui/MainMenu.cs" id="1_mkuvw"]
+
+[node name="MainMenu" type="Control" unique_id=2048130514]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mkuvw")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1825927662]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=477916299]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer" unique_id=797519720]
+layout_mode = 2
+text = "hypersex 3d"
+
+[node name="PlayButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=873859981]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Sex!!"
+
+[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=89977280]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit
+"

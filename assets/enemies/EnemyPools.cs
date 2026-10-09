@@ -14,6 +14,37 @@ public partial class EnemyPools : Node
 		Instance = this;
 	}
 
+	public void Clear()
+	{
+		foreach(var (enemy, handler) in _handlers)
+		{
+			if (IsInstanceValid(enemy))
+			{
+				enemy.DespawnEnemy -= handler;
+			}
+		}
+		_handlers.Clear();
+		foreach (var pool in _pools.Values)
+		{
+			foreach (var p in pool)
+			{
+				if (IsInstanceValid(p))
+					p.QueueFree();
+			}
+		}
+		_pools.Clear();
+		foreach (var pool in _spawners.Values)
+		{
+			foreach (var p in pool)
+			{
+				if (IsInstanceValid(p))
+					p.QueueFree();
+			}
+		}
+		_spawners.Clear();
+		_scenes.Clear();
+	}
+
 	public void LoadEnemies(Godot.Collections.Array<PoolResource> entries, Node3D target)
 	{
 		foreach (var entry in entries)
@@ -38,42 +69,47 @@ public partial class EnemyPools : Node
 
 	public Enemy Acquire(string id, Transform3D transform, float? health, string zoneId)
 	{
-		var pool = _pools[id];
-		Enemy enemy;
-		if (pool.Count == 0)
+		if (_pools.TryGetValue(id, out var pool))
 		{
-			var scene = _scenes[id];
-			enemy = scene.Instantiate<Enemy>();
-			Enemy.DespawnEnemyEventHandler handler = () => Release(id, enemy);
-			enemy.DespawnEnemy += handler;
-			_handlers[enemy] = handler;
-		}
-		else
-		{
-			enemy = pool.Pop();
-		}
-		enemy.Activate();
-		enemy.Transform = transform;
-		enemy.Health.CurrentHealth = health == null ? enemy.Health.MaxHealth : (float)health;
-		enemy.ZoneId = zoneId;
+			Enemy enemy;
+			if (pool.Count == 0)
+			{
+				var scene = _scenes[id];
+				enemy = scene.Instantiate<Enemy>();
+				Enemy.DespawnEnemyEventHandler handler = () => Release(id, enemy);
+				enemy.DespawnEnemy += handler;
+				_handlers[enemy] = handler;
+			}
+			else
+			{
+				enemy = pool.Pop();
+			}
+			enemy.Activate();
+			enemy.Transform = transform;
+			enemy.Health.CurrentHealth = health == null ? enemy.Health.MaxHealth : (float)health;
+			enemy.ZoneId = zoneId;
 
-		return enemy;
+			return enemy;
+		}
+		return null;
 	}
 
 	public EnemySpawner AcquireSpawner(string id, Transform3D transform, float? health, string zoneId)
 	{
-		if (!_spawners.ContainsKey(id)) return null;
-		var pool = _spawners[id];
-		var spawner = pool.Pop();
-		spawner.Transform = transform;
-		spawner.Health = health;
-		spawner.ZoneId = zoneId;
-		return spawner;
+		if (_spawners.TryGetValue(id, out var pool))
+		{
+			var spawner = pool.Pop();
+			spawner.Transform = transform;
+			spawner.Health = health;
+			spawner.ZoneId = zoneId;
+			return spawner;
+		}
+		return null;
 	}
 
 	public void Release(string id, Enemy e)
 	{
-		if(e.GetParent() == null) return;
+		if (e.GetParent() == null) return;
 		e.Deactivate();
 		e.GetParent()?.RemoveChild(e);
 		_pools[id].Push(e);

@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://c6iig8y2ckhjn"]
+
+[node name="PauseMenu" type="CanvasLayer" unique_id=1054625187]
+
+[node name="Control" type="Control" parent="." unique_id=20446178]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control" unique_id=1250749331]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.19607843)
+
+[node name="CenterContainer" type="CenterContainer" parent="Control" unique_id=974683359]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer" unique_id=2063552534]
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="Control/CenterContainer/VBoxContainer" unique_id=402608125]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Resume"
+
+[node name="MainMenuButton" type="Button" parent="Control/CenterContainer/VBoxContainer" unique_id=863989019]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Main Menu
+"
+
+[node name="QuitButton" type="Button" parent="Control/CenterContainer/VBoxContainer" unique_id=1595905912]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Quit
+"

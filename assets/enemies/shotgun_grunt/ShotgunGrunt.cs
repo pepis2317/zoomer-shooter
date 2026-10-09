@@ -47,7 +47,7 @@ public partial class ShotgunGrunt : Enemy
 		{
 			return;
 		}
-		GetTree().CurrentScene.AddChild(projectile);
+		GetParent().AddChild(projectile);
 		var accuracySpread = (100 - Accuracy) / 1000f;
 
 		var toTarget = (Target.GlobalTransform.Origin - GlobalTransform.Origin).Normalized();

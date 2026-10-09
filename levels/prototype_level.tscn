@@ -24,6 +24,7 @@ vertices = PackedVector3Array(-49.5, 1, -49.5, -49.5, 1, 49.5, 49.5, 1, 49.5, 49
 polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
 
 [node name="PrototypeLevel" type="Node3D" unique_id=1389291507]
+process_mode = 1
 script = ExtResource("1_6lfjr")
 LevelData = ExtResource("2_i5e4g")
 

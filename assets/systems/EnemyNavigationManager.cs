@@ -24,6 +24,11 @@ public partial class EnemyNavigationManager : Node
 		Instance = this;
 	}
 
+	public void Clear()
+	{
+		_agents.Clear();
+	}
+
 	public void Register(INavigationTickable agent)
 	{
 		if (agent == null || _agents.Contains(agent))

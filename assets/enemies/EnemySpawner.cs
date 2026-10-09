@@ -39,6 +39,7 @@ public partial class EnemySpawner : Marker3D
 		var transform = new Transform3D(GlobalTransform.Basis, groundPos);
 
 		var enemy = EnemyPools.Instance.Acquire(Id, transform, Health, ZoneId);
+		if(enemy == null) return;
 		parent.AddChild(enemy);
 		EnemyPools.Instance.CallDeferred(EnemyPools.MethodName.ReleaseSpawner, Id, this);
 	}

@@ -1,9 +1,19 @@
 [gd_scene format=3 uid="uid://dep3aefse0y3y"]
 
 [ext_resource type="PackedScene" uid="uid://bkss27s8kaf3" path="res://levels/prototype_level.tscn" id="1_lc4kx"]
+[ext_resource type="Script" uid="uid://rdbddsojwwc1" path="res://assets/systems/MainScene.cs" id="1_ro1ol"]
+[ext_resource type="PackedScene" uid="uid://c6iig8y2ckhjn" path="res://assets/ui/pause_menu.tscn" id="2_8cgr1"]
+[ext_resource type="Script" uid="uid://b2xxkxijd7t5n" path="res://assets/ui/PauseMenu.cs" id="3_oe4v3"]
 
 [node name="MainScene" type="Node" unique_id=1657485569]
+process_mode = 3
+script = ExtResource("1_ro1ol")
+
+[node name="PauseMenu" parent="." unique_id=1054625187 instance=ExtResource("2_8cgr1")]
+unique_name_in_owner = true
+script = ExtResource("3_oe4v3")
 
 [node name="CurrentLevel" type="Node" parent="." unique_id=1032100928]
+unique_name_in_owner = true
 
 [node name="PrototypeLevel" parent="CurrentLevel" unique_id=1389291507 instance=ExtResource("1_lc4kx")]

@@ -12,6 +12,27 @@ public partial class ProjectilePools : Node
 		Instance = this;
 	}
 
+	public void Clear()
+	{
+		foreach (var (projectile, handler) in _handlers)
+		{
+			if (IsInstanceValid(projectile))
+			{
+				projectile.DespawnProjectile -= handler;
+			}
+		}
+		_handlers.Clear();
+		foreach (var pool in _pools.Values)
+		{
+			foreach (var p in pool)
+			{
+				if (IsInstanceValid(p))
+					p.QueueFree();
+			}
+		}
+		_pools.Clear();
+	}
+
 	public void RegisterProjectiles(PackedScene scene, int amount)
 	{
 		var stack = new Stack<Projectile>();
@@ -29,21 +50,24 @@ public partial class ProjectilePools : Node
 
 	public Projectile Acquire(PackedScene scene)
 	{
-		var pool = _pools[scene];
-		Projectile p;
-		if (pool.Count == 0)
+		if (_pools.TryGetValue(scene, out var pool))
 		{
-			p = scene.Instantiate<Projectile>();
-			Projectile.DespawnProjectileEventHandler handler = () => Release(scene, p);
-			p.DespawnProjectile += handler;
-			_handlers[p] = handler;
+			Projectile p;
+			if (pool.Count == 0)
+			{
+				p = scene.Instantiate<Projectile>();
+				Projectile.DespawnProjectileEventHandler handler = () => Release(scene, p);
+				p.DespawnProjectile += handler;
+				_handlers[p] = handler;
+			}
+			else
+			{
+				p = pool.Pop();
+			}
+			p.Activate();
+			return p;
 		}
-		else
-		{
-			p = pool.Pop();
-		}
-		p.Activate();
-		return p;
+		return null;
 	}
 
 	public void Release(PackedScene scene, Projectile p)
