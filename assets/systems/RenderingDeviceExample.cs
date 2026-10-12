@@ -41,9 +41,17 @@ public partial class RenderingDeviceExample : Node
 		var computeList = _rd.ComputeListBegin();
 		_rd.ComputeListBindComputePipeline(computeList, pipeline);
 		_rd.ComputeListBindUniformSet(computeList, uniformSet, 0);
-		// We are dispatching the compute shaders with 5 work groups in x axis, and 1 on the other axis
-		// Since we have 2 local invocations in the x axis (here and in the shader), 10 compute shader invocations will be launched in total?
-		// Do not read/write to indices outside of the range of the buffer. it touches memory for other things.
+		// We are dispatching the compute shaders with 5 work groups in x axis, and 1 on the other axes
+		// Since we have 2 local invocations in the x axis, 10 compute shader invocations will be launched in total
+		// Do not read/write to indices outside of the range of the buffer.
+		// You have 5 teams of 2 workers:
+		// Work group 0:
+		// - worker 0
+		// - worker 1
+		// Work group 1:
+		// - worker 2
+		// - worker 3
+		// etc.
 		_rd.ComputeListDispatch(computeList, xGroups: 5, yGroups: 1, zGroups: 1);
 		_rd.ComputeListEnd();
 		_rd.Submit();

@@ -234,14 +234,16 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		Velocity = Vector3.Zero;
 		Show();
 		ProcessMode = ProcessModeEnum.Inherit;
-		AabbCollisionManager.Instance.Register(CollisionArea);
+		// AabbCollisionManager.Instance.Register(CollisionArea);
+		GpuCollisionManager.Instance.Register(CollisionArea);
 	}
 
 	public void Deactivate()
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
-		AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		GpuCollisionManager.Instance.UnRegister(CollisionArea);
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 

@@ -52,7 +52,8 @@ public abstract partial class Projectile : Node3D
 	public void Activate()
 	{
 		Show();
-		AabbCollisionManager.Instance.Register(CollisionArea);
+		// AabbCollisionManager.Instance.Register(CollisionArea);
+		GpuCollisionManager.Instance.Register(CollisionArea);
 		SetDeferred(Node.PropertyName.ProcessMode, (int)ProcessModeEnum.Inherit);
 	}
 	public void Deactivate()
@@ -63,7 +64,8 @@ public abstract partial class Projectile : Node3D
 		Damage = 0;
 		HasHit = false;
 		KnockbackForce = 0;
-		AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		GpuCollisionManager.Instance.UnRegister(CollisionArea);
 		SetDeferred(Node.PropertyName.ProcessMode, (int)ProcessModeEnum.Disabled);
 	}
 }
