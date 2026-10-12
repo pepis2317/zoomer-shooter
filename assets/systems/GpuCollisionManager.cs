@@ -2,13 +2,14 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 public partial class GpuCollisionManager : Node
 {
 	public static GpuCollisionManager Instance;
 	private const int AabbStride = 32; // 2 x vec4
 	private const int EntryStride = 12; // codeLo, codeHi, index
-	private const int ParamsSize = 16; //std140: float + uint, padded
+	private const int ParamsSize = 16; //std140: float + uint + uint, padded
 	private const int LocalSize = 64;
 	private const float Cell = 8f;
 
@@ -17,7 +18,9 @@ public partial class GpuCollisionManager : Node
 	private readonly List<CollisionArea> _pendingRemove = new();
 
 	private RenderingDevice _rd;
-	private Rid _shader, _pipeline, _aabbBuffer, _entryBuffer, _paramsBuffer, _uniformSet;
+	private Rid _mortonShader, _mortonPipeline, _mortonUniformSet;
+	private Rid _sortShader, _sortPipeline, _sortUniformSet;
+	private Rid _aabbBuffer, _sortEntryBuffer, _mortonParamsBuffer;
 	private int _capacity;
 
 	private float[] _aabbFloats = Array.Empty<float>();
@@ -43,9 +46,10 @@ public partial class GpuCollisionManager : Node
 
 		// Free the capacity-dependent resources; EnsureCapacity rebuilds them on demand.
 		// The uniform set goes first because it references the buffers.
-		Free(ref _uniformSet);
+		Free(ref _sortUniformSet);
+		Free(ref _mortonUniformSet);
 		Free(ref _aabbBuffer);
-		Free(ref _entryBuffer);
+		Free(ref _sortEntryBuffer);
 
 		_aabbFloats = Array.Empty<float>();
 		_aabbBytes = Array.Empty<byte>();
@@ -59,22 +63,33 @@ public partial class GpuCollisionManager : Node
 		rid = default;   // so a second call is a no-op
 	}
 
+	private bool LoadCompute(string path, out Rid shader, out Rid pipeline)
+	{
+		shader = default;
+		pipeline = default;
+
+		var file = GD.Load<RDShaderFile>(path);
+		var spirv = file.GetSpirV();
+		if (!string.IsNullOrEmpty(spirv.CompileErrorCompute))
+		{
+			GD.PushError(spirv.CompileErrorCompute);
+			return false;
+		}
+		shader = _rd.ShaderCreateFromSpirV(spirv);
+		pipeline = _rd.ComputePipelineCreate(shader);
+		return true;
+	}
+
 	public override void _Ready()
 	{
 		Instance = this;
 		ProcessPhysicsPriority = 100;
 		_rd = RenderingServer.CreateLocalRenderingDevice();
 
-		var shaderFile = GD.Load<RDShaderFile>("res://assets/systems/get_entries_to_sort.glsl");
-		var spirv = shaderFile.GetSpirV();
-		if (!string.IsNullOrEmpty(spirv.CompileErrorCompute))
-		{
-			GD.PushError(spirv.CompileErrorCompute);
-			return;
-		}
-		_shader = _rd.ShaderCreateFromSpirV(spirv);
-		_pipeline = _rd.ComputePipelineCreate(_shader);
-		_paramsBuffer = _rd.UniformBufferCreate(ParamsSize);
+		if (!LoadCompute("res://assets/systems/get_entries_to_sort.glsl", out _mortonShader, out _mortonPipeline)) return;
+		if (!LoadCompute("res://assets/systems/bitonic_step.glsl", out _sortShader, out _sortPipeline)) return;
+
+		_mortonParamsBuffer = _rd.UniformBufferCreate(ParamsSize);
 		EnsureCapacity(2048);
 	}
 
@@ -82,27 +97,32 @@ public partial class GpuCollisionManager : Node
 	{
 		if (n <= _capacity) return;
 
-		int newCap = Math.Max(2048, _capacity);
-		while (newCap < n) newCap *= 2;
+		uint paddedCap = System.Numerics.BitOperations.RoundUpToPowerOf2((uint)Math.Max(2048, n));
 
-		if (_uniformSet.IsValid) _rd.FreeRid(_uniformSet);
+		if (_sortUniformSet.IsValid) _rd.FreeRid(_sortUniformSet);
+		if (_mortonUniformSet.IsValid) _rd.FreeRid(_mortonUniformSet);
 		if (_aabbBuffer.IsValid) _rd.FreeRid(_aabbBuffer);
-		if (_entryBuffer.IsValid) _rd.FreeRid(_entryBuffer);
+		if (_sortEntryBuffer.IsValid) _rd.FreeRid(_sortEntryBuffer);
 
-		_aabbBuffer = _rd.StorageBufferCreate((uint)(newCap * AabbStride));
-		_entryBuffer = _rd.StorageBufferCreate((uint)(newCap * EntryStride));
+		_aabbBuffer = _rd.StorageBufferCreate(paddedCap * AabbStride);
+		_sortEntryBuffer = _rd.StorageBufferCreate(paddedCap * EntryStride);
 
-		_aabbFloats = new float[newCap * 8];
-		_aabbBytes = new byte[newCap * AabbStride];
-		_capacity = newCap;
+		_aabbFloats = new float[paddedCap * 8];
+		_aabbBytes = new byte[paddedCap * AabbStride];
+		_capacity = (int)paddedCap;
 
 		// The uniform set references the buffers, so it must be rebuilt whenever they change
-		_uniformSet = _rd.UniformSetCreate(new Godot.Collections.Array<RDUniform>
+		_mortonUniformSet = _rd.UniformSetCreate(new Godot.Collections.Array<RDUniform>
 		{
 			MakeUniform(RenderingDevice.UniformType.StorageBuffer, 0, _aabbBuffer),
-			MakeUniform(RenderingDevice.UniformType.StorageBuffer, 1, _entryBuffer),
-			MakeUniform(RenderingDevice.UniformType.UniformBuffer, 2, _paramsBuffer),
-		}, _shader, 0);
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer, 1, _sortEntryBuffer),
+			MakeUniform(RenderingDevice.UniformType.UniformBuffer, 2, _mortonParamsBuffer),
+		}, _mortonShader, 0);
+
+		_sortUniformSet = _rd.UniformSetCreate(new Godot.Collections.Array<RDUniform>
+		{
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer, 0, _sortEntryBuffer)
+		}, _sortShader, 0);
 	}
 
 	private static RDUniform MakeUniform(RenderingDevice.UniformType type, int binding, Rid buffer)
@@ -126,11 +146,15 @@ public partial class GpuCollisionManager : Node
 		}
 	}
 
+
 	public override void _PhysicsProcess(double delta)
 	{
 		FlushPending();
 		int n = _areas.Count;
 		if (n == 0) return;
+
+		uint paddedN = System.Numerics.BitOperations.RoundUpToPowerOf2((uint)n);
+
 		EnsureCapacity(n);
 		ulong t0 = Time.GetTicksUsec();
 		for (int i = 0; i < n; i++)
@@ -155,49 +179,71 @@ public partial class GpuCollisionManager : Node
 
 		// Params
 		Buffer.BlockCopy(new[] { Cell }, 0, _paramBytes, 0, 4);
-		Buffer.BlockCopy(new[] { (uint)n }, 0, _paramBytes, 4, 4);
-		_rd.BufferUpdate(_paramsBuffer, 0, ParamsSize, _paramBytes);
+		Buffer.BlockCopy(new[] { paddedN }, 0, _paramBytes, 4, 4);
+		Buffer.BlockCopy(new[] { (uint)n }, 0, _paramBytes, 8, 4);
+		_rd.BufferUpdate(_mortonParamsBuffer, 0, ParamsSize, _paramBytes);
 
 		// Dispatch
 		long list = _rd.ComputeListBegin();
-		_rd.ComputeListBindComputePipeline(list, _pipeline);
-		_rd.ComputeListBindUniformSet(list, _uniformSet, 0);
-		_rd.ComputeListDispatch(list, (uint)((n + LocalSize - 1) / LocalSize), 1, 1);
+		// Pass 1: morton codes
+		_rd.ComputeListBindComputePipeline(list, _mortonPipeline);
+		_rd.ComputeListBindUniformSet(list, _mortonUniformSet, 0);
+		_rd.ComputeListDispatch(list, (paddedN + LocalSize - 1) / LocalSize, 1, 1);
+		_rd.ComputeListAddBarrier(list);
+
+		// Pass 2: bitonic sort
+		_rd.ComputeListBindComputePipeline(list, _sortPipeline);
+		_rd.ComputeListBindUniformSet(list, _sortUniformSet, 0);
+
+		uint groups = (paddedN + LocalSize - 1) / LocalSize;
+		byte[] pc = new byte[16];
+		BitConverter.GetBytes(paddedN).CopyTo(pc, 8);
+
+		for (uint blockSize = 2; blockSize <= paddedN; blockSize <<= 1)
+		{
+			for (uint stride = blockSize >> 1; stride > 0; stride >>= 1)
+			{
+				BitConverter.GetBytes(blockSize).CopyTo(pc, 0);
+				BitConverter.GetBytes(stride).CopyTo(pc, 4);
+				_rd.ComputeListSetPushConstant(list, pc, (uint)pc.Length);
+				_rd.ComputeListDispatch(list, groups, 1, 1);
+				_rd.ComputeListAddBarrier(list);
+			}
+		}
+
 		_rd.ComputeListEnd();
 		_rd.Submit();
 		_rd.Sync(); // this might bite me in the ass;
-
-		byte[] data = _rd.BufferGetData(_entryBuffer, 0, (uint)(n * EntryStride));
+		byte[] data = _rd.BufferGetData(_sortEntryBuffer, 0, (uint)(n * EntryStride));
 		ReadEntries(data, n);
+
 		ulong t1 = Time.GetTicksUsec();
-		GD.Print($"gpu path: {(t1 - t0) / 1000.0:F3} ms for n={n}");
+		// GD.Print($"gpu path: {(t1 - t0) / 1000.0:F3} ms for n={n}");
 	}
 
 	private void ReadEntries(byte[] data, int n)
 	{
 		var u = MemoryMarshal.Cast<byte, uint>(data);
-		for (int i = 0; i < n; i++)
+		for (int i = 1; i < n; i++)
 		{
-			ulong code = ((ulong)u[i * 3 + 1] << 32) | u[i * 3];
-			uint index = u[i * 3 + 2];
-
-			string dec = code.ToString();                                // decimal
-			string hex = code.ToString("X16");                           // 16 hex digits
-			string bin = Convert.ToString((long)code, 2).PadLeft(63, '0'); // 63-bit binary
-
-			// GD.Print($"[{i}] index={index} dec={dec} hex=0x{hex} bin={bin}");
+			ulong prev = ((ulong)u[(i - 1) * 3 + 1] << 32) | u[(i - 1) * 3];
+			ulong cur = ((ulong)u[i * 3 + 1] << 32) | u[i * 3];
+			if (prev > cur) { GD.PrintErr($"Not sorted at {i}"); break; }
 		}
 	}
 
 	public override void _ExitTree()
 	{
 		if (_rd == null) return;
-		Free(ref _uniformSet);
+		Free(ref _sortUniformSet);
+		Free(ref _mortonUniformSet);
 		Free(ref _aabbBuffer);
-		Free(ref _entryBuffer);
-		Free(ref _paramsBuffer);
-		Free(ref _pipeline);
-		Free(ref _shader);
+		Free(ref _sortEntryBuffer);
+		Free(ref _mortonParamsBuffer);
+		Free(ref _mortonPipeline);
+		Free(ref _mortonShader);
+		Free(ref _sortEntryBuffer);
+		Free(ref _sortPipeline);
 		_rd.Free();
 		_rd = null;
 	}

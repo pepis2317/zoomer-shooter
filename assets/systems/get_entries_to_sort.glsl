@@ -26,6 +26,7 @@ layout(std430, binding=1) writeonly buffer EntryBuffer{
 
 layout(std140, binding=2) uniform Params{
     float cell;
+    uint paddedCount;
     uint count;
 };
 
@@ -75,7 +76,13 @@ uvec3 toUnsigned(ivec3 v){
 
 void main() {
     uint i = gl_GlobalInvocationID.x;
-    if (i >= count) return;
+    if (i >= paddedCount) return;
+    if (i >= count){
+        entries[i].codeLo = 0xFFFFFFFFu;
+        entries[i].codeHi = 0xFFFFFFFFu;
+        entries[i].index  = 0xFFFFFFFFu;
+        return;
+    }
 
     vec3 center = (aabbs[i].minPosition.xyz + aabbs[i].maxPosition.xyz) * 0.5;
 
