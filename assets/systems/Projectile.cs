@@ -36,7 +36,7 @@ public abstract partial class Projectile : Node3D
 	}
 	public override void _PhysicsProcess(double delta)
 	{
-		if (_freeTimer > 2f)
+		if (_freeTimer > 1f)
 		{
 			EmitSignal(SignalName.DespawnProjectile);
 			return;

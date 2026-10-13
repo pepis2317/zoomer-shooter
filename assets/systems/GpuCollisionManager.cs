@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 public partial class GpuCollisionManager : Node
 {
@@ -11,13 +13,12 @@ public partial class GpuCollisionManager : Node
 	private const int MortonParamsSize = 16; // std140: float + uint + uint, padded
 	private const int SortParamsSize = 16; // blockSize + stride + count + pad (pad isnt set anywhere here though, its just padding)
 	private const int BuildParamsSize = 16; // count + p0 + p1 + p2
-	private const int BoundsParamsSize = 16;
-	private const int TraverseParamsSize = 16;
-	private const int LocalSize = 64;
+	private const int BoundsParamsSize = 16; // count + p0 + p1 + p2
+	private const int TraverseParamsSize = 16; // count + maxpairs + p1 + p2
+	private const int LocalSize = 256;
 	private const float Cell = 8f;
 
 	private readonly List<CollisionArea> _areas = new();
-	private readonly List<CollisionArea> _pendingAdd = new();
 	private readonly List<CollisionArea> _pendingRemove = new();
 	private Dictionary<CollisionArea, HashSet<CollisionArea>> _justOverlapped = new();
 
@@ -39,19 +40,16 @@ public partial class GpuCollisionManager : Node
 	public void Register(CollisionArea area)
 	{
 		_areas.Add(area);
-		GD.Print("count after adding: "+ _areas.Count);
 	}
 
 	public void UnRegister(CollisionArea area)
 	{
-		_areas.Remove(area);
-		GD.Print("count after removing: "+ _areas.Count);
+		_pendingRemove.Add(area);
 	}
 
 	public void Clear()
 	{
 		_areas.Clear();
-		_pendingAdd.Clear();
 		_pendingRemove.Clear();
 
 		// Free the capacity-dependent resources; EnsureCapacity rebuilds them on demand.
@@ -118,9 +116,8 @@ public partial class GpuCollisionManager : Node
 		_boundsBuffer = _rd.StorageBufferCreate(2 * paddedCap * AabbStride);
 		_mortonParamsBuffer = _rd.UniformBufferCreate(MortonParamsSize);
 		_countersBuffer = _rd.StorageBufferCreate(paddedCap * 4); // one uint per internal node
-		// _pairCounterBuffer = _rd.StorageBufferCreate(4);
-
-		_pairsBuffer = _rd.StorageBufferCreate((uint)paddedCap * 8);
+		_pairCounterBuffer = _rd.StorageBufferCreate(4); // just one uint
+		_pairsBuffer = _rd.StorageBufferCreate(paddedCap * 8); // each uvec2 is two uints, so 8
 
 		_aabbFloats = new float[paddedCap * 8];
 		_aabbBytes = new byte[paddedCap * AabbStride];
@@ -155,14 +152,14 @@ public partial class GpuCollisionManager : Node
 
 		}, _boundsShader, 0);
 
-		// _traversalUniformSet = _rd.UniformSetCreate(new Godot.Collections.Array<RDUniform>
-		// {
-		// 	MakeUniform(RenderingDevice.UniformType.StorageBuffer,0,_sortEntryBuffer),
-		// 	MakeUniform(RenderingDevice.UniformType.StorageBuffer,1,_nodesBuffer),
-		// 	MakeUniform(RenderingDevice.UniformType.StorageBuffer,2,_boundsBuffer),
-		// 	MakeUniform(RenderingDevice.UniformType.StorageBuffer,3,_pairCounterBuffer),
-		// 	MakeUniform(RenderingDevice.UniformType.StorageBuffer,4,_pairsBuffer),
-		// }, _traversalShader, 0);
+		_traversalUniformSet = _rd.UniformSetCreate(new Godot.Collections.Array<RDUniform>
+		{
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer,0,_sortEntryBuffer),
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer,1,_nodesBuffer),
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer,2,_boundsBuffer),
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer,3,_pairCounterBuffer),
+			MakeUniform(RenderingDevice.UniformType.StorageBuffer,4,_pairsBuffer),
+		}, _traversalShader, 0);
 	}
 
 	private static RDUniform MakeUniform(RenderingDevice.UniformType type, int binding, Rid buffer)
@@ -172,8 +169,27 @@ public partial class GpuCollisionManager : Node
 		return u;
 	}
 
+	public void FlushRemoval()
+	{
+		foreach (var area in _pendingRemove)
+		{
+			_areas.Remove(area);
+			foreach (var other in _areas)
+			{
+				if (other.Overlapping.Remove(area))
+				{
+					other.EmitSignal(CollisionArea.SignalName.BodyExited, area);
+				}
+			}
+			area.Overlapping.Clear();
+		}
+		_pendingRemove.Clear();
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
+		//clear
+		FlushRemoval();
 		int n = _areas.Count;
 		if (n == 0) return;
 
@@ -207,7 +223,7 @@ public partial class GpuCollisionManager : Node
 		Buffer.BlockCopy(new[] { (uint)n }, 0, _mortonParamBytes, 8, 4);
 		_rd.BufferUpdate(_mortonParamsBuffer, 0, MortonParamsSize, _mortonParamBytes);
 
-		// _rd.BufferClear(_pairCounterBuffer, 0, 4);
+		_rd.BufferClear(_pairCounterBuffer, 0, 4);
 		if (n >= 2)
 		{
 			_rd.BufferClear(_countersBuffer, 0, (uint)((n - 1) * 4));
@@ -240,6 +256,7 @@ public partial class GpuCollisionManager : Node
 				_rd.ComputeListAddBarrier(list);
 			}
 		}
+		var maxPairs = paddedN * 8;
 		if (n >= 2)
 		{
 			// Pass 3: build hierarchy
@@ -259,77 +276,83 @@ public partial class GpuCollisionManager : Node
 			_rd.ComputeListSetPushConstant(list, boundsPushConstants, (uint)boundsPushConstants.Length);
 			_rd.ComputeListDispatch(list, (uint)((n + LocalSize - 1) / LocalSize), 1, 1);
 			_rd.ComputeListAddBarrier(list);
+
+			// Pass 5: traversal
+			byte[] traversalPushConstants = new byte[TraverseParamsSize];
+			BitConverter.GetBytes((uint)n).CopyTo(traversalPushConstants, 0);
+			_rd.ComputeListBindComputePipeline(list, _traversalPipeline);
+			_rd.ComputeListBindUniformSet(list, _traversalUniformSet, 0);
+			BitConverter.GetBytes(maxPairs).CopyTo(traversalPushConstants, 4);
+			_rd.ComputeListSetPushConstant(list, traversalPushConstants, (uint)traversalPushConstants.Length);
+			_rd.ComputeListDispatch(list, (uint)((n + LocalSize - 1) / LocalSize), 1, 1);
+			_rd.ComputeListAddBarrier(list);
 		}
 		_rd.ComputeListEnd();
 		_rd.Submit();
 		_rd.Sync();
-		DrawTreeBounds(n, maxDepth: 5);
-		// _justOverlapped.Clear();
-		// if (n >= 2)
-		// {
-		// 	uint count = BitConverter.ToUInt32(_rd.BufferGetData(_pairCounterBuffer, 0, 4), 0);
-		// 	uint raw = BitConverter.ToUInt32(_rd.BufferGetData(_pairCounterBuffer, 0, 4), 0);
+		_justOverlapped.Clear();
+		DrawTreeBounds(n, 5);
+		if (n >= 2)
+		{
+			uint count = BitConverter.ToUInt32(_rd.BufferGetData(_pairCounterBuffer, 0, 4), 0);
 
-		// 	if (count > paddedN)
-		// 	{
-		// 		count = paddedN;
-		// 	}
-		// 	byte[] data = _rd.BufferGetData(_pairsBuffer, 0, count * 8);
-		// 	var pairs = MemoryMarshal.Cast<byte, uint>(data);
+			// pairCount keeps incrementing past maxPairs, clamp to what was actually written
+			if (count > maxPairs) count = maxPairs;
 
-		// 	for (int k = 0; k + 1 < pairs.Length; k += 2)
-		// 	{
-		// 		int a = (int)pairs[k];       // smaller index
-		// 		int b = (int)pairs[k + 1];   // larger index
-		// 		var overlappingA = _areas[a].Overlapping;
-		// 		if (!overlappingA.Contains(_areas[b]))
-		// 		{
-		// 			_areas[a].Overlapping.Add(_areas[b]);
-		// 			_areas[a].EmitSignal(CollisionArea.SignalName.BodyEntered, _areas[b]);
-		// 			if (!_justOverlapped.TryGetValue(_areas[a], out var set))
-		// 			{
-		// 				set = new HashSet<CollisionArea>();
-		// 				_justOverlapped[_areas[a]] = set;
-		// 			}
-		// 			set.Add(_areas[b]);
-		// 		}
-		// 		var overlappingB = _areas[b].Overlapping;
-		// 		if (!overlappingB.Contains(_areas[b]))
-		// 		{
-		// 			_areas[b].Overlapping.Add(_areas[a]);
-		// 			_areas[b].EmitSignal(CollisionArea.SignalName.BodyEntered, _areas[a]);
-		// 			if (!_justOverlapped.TryGetValue(_areas[b], out var set))
-		// 			{
-		// 				set = new HashSet<CollisionArea>();
-		// 				_justOverlapped[_areas[b]] = set;
-		// 			}
-		// 			set.Add(_areas[a]);
-		// 		}
-		// 	}
+			if (count == 0)
+			{
+				return;
+			}
 
-		// 	foreach (var (area, justOverlapped) in _justOverlapped)
-		// 	{
-		// 		var exited = area.Overlapping.Where(q => !justOverlapped.Contains(q)).ToList();
+			byte[] data = _rd.BufferGetData(_pairsBuffer, 0, count * 8);
+			var pairs = MemoryMarshal.Cast<byte, uint>(data); // or keep uint
+			for (int i = 1; i < pairs.Length; i += 2)
+			{
+				var a = (int)pairs[i - 1];
+				var b = (int)pairs[i];
+				HandleOverlap(_areas[a], _areas[b]);
+				HandleOverlap(_areas[b], _areas[a]);
+			}
+			foreach (var (area, justOverlapped) in _justOverlapped)
+			{
+				var exited = area.Overlapping.Where(q => !justOverlapped.Contains(q)).ToList();
 
-		// 		foreach (var other in exited)
-		// 		{
-		// 			area.Overlapping.Remove(other);
-		// 			area.EmitSignal(CollisionArea.SignalName.BodyExited, other);
-		// 		}
-		// 	}
-		// }
+				foreach (var other in exited)
+				{
+					area.Overlapping.Remove(other);
+					area.EmitSignal(CollisionArea.SignalName.BodyExited, other);
+				}
+			}
+		}
+	}
+
+	private void HandleOverlap(CollisionArea a, CollisionArea b)
+	{
+		var overlapping = a.Overlapping;
+		if (!overlapping.Contains(b))
+		{
+			a.Overlapping.Add(b);
+			a.EmitSignal(CollisionArea.SignalName.BodyEntered, b);
+			if (!_justOverlapped.TryGetValue(a, out var set))
+			{
+				set = new HashSet<CollisionArea>();
+				_justOverlapped[a] = set;
+			}
+			set.Add(b);
+		}
 	}
 
 	private void EnsureDebugMesh()
 	{
 		if (_debugMesh != null) return;
-		_debugMesh = new MeshInstance3D();
-		_debugMesh.Mesh = new ImmediateMesh();
-		_debugMesh.MaterialOverride = new StandardMaterial3D
+		_debugMesh = new MeshInstance3D
 		{
-			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-			VertexColorUseAsAlbedo = true,
-			NoDepthTest = true // optional: see boxes through geometry
+			Mesh = new ImmediateMesh(),
+			MaterialOverride = new StandardMaterial3D
+			{
+				ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+				VertexColorUseAsAlbedo = true,
+			}
 		};
 		AddChild(_debugMesh);
 	}

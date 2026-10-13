@@ -196,7 +196,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		newSpeed /= speed;
 		vel *= newSpeed;
 		Velocity = vel;
-		if(Velocity > Vector3.Zero)
+		if (Velocity > Vector3.Zero)
 		{
 			IsRepositioning = true;
 		}
@@ -244,6 +244,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		_unstaggeredState.ExitStateMachine();
 		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
 		GpuCollisionManager.Instance.UnRegister(CollisionArea);
+		EnemyNavigationManager.Instance.UnRegister(this);
 		Health.DamageTaken -= OnDamageTaken;
 		Stamina.StaminaDamageTaken -= OnStaminaDamageTaken;
 		CollisionArea.BodyEntered -= OnBodyEntered;
@@ -254,7 +255,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		if (Health.CurrentHealth <= 0) return;
 		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Health.CurrentHealth, ZoneId);
-		if(spawner == null) return;
+		if (spawner == null) return;
 		GetParent().AddChild(spawner);
 		EmitSignal(SignalName.DespawnEnemy);
 	}
