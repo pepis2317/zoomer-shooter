@@ -32,17 +32,28 @@ layout(push_constant) uniform Params{
 } params;
 
 int n;
-
+// Returns length of the longest common prefix in bits, we use this as the 'closeness score'
+// Higher the return value = keys are more similar = entries are closer in the tree
 int delta(int i, int j){
+    // Prevent out of range results. j should always be >= 0
     if( j < 0 || j >= n ) return -1;
     SortEntry a = entries[i];
     SortEntry b = entries[j];
+
+    // The upper 32 bits are not the same
     if(a.codeHi != b.codeHi){
+        // findMSB stands for 'find most significant bit'. it returns the position of the highest 1
+        // every bit above findMSB(a.codeHi ^ b.codeHi) matched
+        // so 31 (like the range 0...31) - msb gives us the closeness score
         return 31 - findMSB(a.codeHi ^ b.codeHi);
     }
+    // The lower 32 bits are not the same
     if(a.codeLo != b.codeLo){
+        // same applies here, but for the lower end of the code
         return 32 + 31 - findMSB(a.codeLo ^ b.codeLo);
     }
+    // This is when the full 64 bit morton codes are identical.
+    // Tie break using array positions i and j as if they were appended to the tree
     return 64 + 31 - findMSB(uint(i) ^ uint(j));
 }
 
@@ -52,38 +63,49 @@ void main(){
     if(i >= n-1) return;
 
     // direction of the range
-    int d = delta(i, i + 1) - delta(i, i - 1) > 0 ? 1 : -1;
-    int dmin = delta(i, i - d);
+    // if the index after this is 'closer' than the index before, 1, else -1
+    int direction = delta(i, i + 1) - delta(i, i - 1) > 0 ? 1 : -1;
+    // look at the score of the prev/next index
+    int dmin = delta(i, i - direction);
 
     // upper bound on range length
+    // start with a guess of 2
     int lmax = 2;
-    while(delta(i, i+ lmax * d) > dmin){
+    // probe to the right until the score between this index and i + lmax * direction is 'closer' than dmin
+    while(delta(i, i + lmax * direction) > dmin){
         lmax *= 2;
     }
 
     // binary search for the other end
+    // l is the distance from i to the last entry that shares more than dmin bits
     int l = 0;
     for(int t = lmax/2; t >= 1; t /= 2){
-        if(delta(i, i + (l + t) * d) > dmin){
+        if(delta(i, i + (l + t) * direction) > dmin){
             l += t;
         }
     }
-    int j = i + l * d;
+    // the result i j, an index of the other end of node
+    int j = i + l * direction;
 
     //binary search for the split position
     int dnode = delta(i, j);
+    // s is going to be the distance from i to the last entry that still shares more than dnode
     int s = 0;
+    // t is the step size, starts at l (range length) and shrinks each iteration
     int t = l;
     do{
         t = (t + 1) >> 1;
-        if(delta(i, i + (s + t) * d) > dnode){
+        if(delta(i, i + (s + t) * direction) > dnode){
             s += t;
         }
     }while(t > 1);
-    int gamma = i + s * d + min(d, 0);
+    // i + s * direction is the index of the last entry in i's child
+    // gamma noramlizes this so that its always the left element of the split pair(gamma & gamma + 1)
+    // idk man, beats me
+    int gamma = i + s * direction + min(direction, 0);
 
     int leafBase = n - 1;
-    uint left  = (min(i, j) == gamma)     ? uint(leafBase + gamma)     : uint(gamma);
+    uint left  = (min(i, j) == gamma) ? uint(leafBase + gamma)     : uint(gamma);
     uint right = (max(i, j) == gamma + 1) ? uint(leafBase + gamma + 1) : uint(gamma + 1);
 
     nodes[i].left = left;

@@ -53,18 +53,21 @@ void main() {
     int n = int(params.count);
     if (i >= n) return;
 
+    // setup: one thread per leaf
     uint node = uint(n - 1 + i);
     bounds[node] = prim[entries[i].index];
 
+    // then walk up towards the root
     while (true) {
         uint p = nodes[node].parent;
-        if (p == 0xFFFFFFFFu) return;
+        if (p == 0xFFFFFFFFu) return; // if root, return
 
         memoryBarrierBuffer();
         uint old = atomicAdd(counters[p], 1u);
         if (old == 0u) return; // sibling not done, it'll finish this one
         memoryBarrierBuffer();
 
+        // merge bounds
         uint l = nodes[p].left, r = nodes[p].right;
         bounds[p].minPosition = min(bounds[l].minPosition, bounds[r].minPosition);
         bounds[p].maxPosition = max(bounds[l].maxPosition, bounds[r].maxPosition);
