@@ -53,11 +53,7 @@ public partial class SGInsideRangeState : InsideRangeState
 		if (result.Count == 0) return false;
 		if (_shotgunGrunt.FireTimer <= 0)
 		{
-			if(GD.Randf() < 0.5f)
-			{
-				return AttackTokenManager.Instance.RequestAttack(_shotgunGrunt.AttackCost);
-			}
-			return false;
+			return AttackTokenManager.Instance.RequestAttack(_shotgunGrunt.AttackCost);
 		}
 		return false;
 	}

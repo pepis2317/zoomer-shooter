@@ -14,7 +14,6 @@ CollisionArea = NodePath("CollisionArea")
 [node name="CollisionArea" type="Node3D" parent="." unique_id=1829188906]
 script = ExtResource("2_61si2")
 HalfExtents = Vector3(0.1, 0.1, 0.1)
-DebugDraw = true
 IsSweep = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=927719422]

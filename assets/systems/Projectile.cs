@@ -11,14 +11,9 @@ public abstract partial class Projectile : Node3D
 	public bool HasHit = false;
 	private float _freeTimer = 0f;
 
-	public override void _Ready()
-	{
-		CollisionArea.BodyEntered += OnBodyEntered;
-	}
-
 	protected virtual void OnBodyEntered(CollisionArea body)
 	{
-		if (HasHit || body.GetParent() != Source) return;
+		if (HasHit || body.GetParent() == Source) return;
 		HasHit = true;
 	}
 	protected void ApplyDamage(Node3D target)
@@ -52,8 +47,11 @@ public abstract partial class Projectile : Node3D
 	public void Activate()
 	{
 		Show();
-		AabbCollisionManager.Instance.Register(CollisionArea);
-		SetDeferred(Node.PropertyName.ProcessMode, (int)ProcessModeEnum.Inherit);
+		// AabbCollisionManager.Instance.Register(CollisionArea);
+		ProcessMode = ProcessModeEnum.Inherit;
+		CollisionArea.ResetSweep();
+		GpuCollisionManager.Instance.Register(CollisionArea);
+		CollisionArea.BodyEntered += OnBodyEntered;
 	}
 	public void Deactivate()
 	{
@@ -62,8 +60,11 @@ public abstract partial class Projectile : Node3D
 		Velocity = Vector3.Zero;
 		Damage = 0;
 		HasHit = false;
+		Source = null;
 		KnockbackForce = 0;
-		AabbCollisionManager.Instance.UnRegister(CollisionArea);
-		SetDeferred(Node.PropertyName.ProcessMode, (int)ProcessModeEnum.Disabled);
+		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		GpuCollisionManager.Instance.UnRegister(CollisionArea);
+		CollisionArea.BodyEntered -= OnBodyEntered;
+		ProcessMode= ProcessModeEnum.Disabled;
 	}
 }

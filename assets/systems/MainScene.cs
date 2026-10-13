@@ -66,6 +66,7 @@ public partial class MainScene : Node
 		}
 
 		// 2. Now nothing can call into the managers, so clear them
+		GpuCollisionManager.Instance.Clear();
 		EnemyNavigationManager.Instance.Clear();
 		EnemyPools.Instance.Clear();
 		ProjectilePools.Instance.Clear();

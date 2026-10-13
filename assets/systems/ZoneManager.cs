@@ -21,17 +21,13 @@ public partial class ZoneManager : Node
 		if (CurrentZoneId != zoneId || CurrentZoneId != null)
 		{
 			CurrentZoneId = zoneId;
-			var enemiesOutsideOfZone = GetTree()
-				.GetNodesInGroup("Enemy")
-				.OfType<Enemy>()
-				.Where(q => q.ZoneId != zoneId && q.ZoneId != null);
+			var enemiesOutsideOfZone = GetTree().GetNodesInGroup("Enemy").OfType<Enemy>()
+				.Where(q => q.ZoneId != zoneId);
 			foreach (var enemy in enemiesOutsideOfZone)
 			{
 				enemy.PlaceSpawner();
 			}
-			var spawnersInsideOfZone = GetTree()
-				.GetNodesInGroup("EnemySpawner")
-				.OfType<EnemySpawner>()
+			var spawnersInsideOfZone = GetTree().GetNodesInGroup("EnemySpawner").OfType<EnemySpawner>()
 				.Where(q => q.ZoneId == zoneId);
 			foreach (var spawner in spawnersInsideOfZone)
 			{

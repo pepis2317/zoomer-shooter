@@ -64,9 +64,6 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		{
 			AddToGroup(group);
 		}
-		Health.DamageTaken += OnDamageTaken;
-		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
-		CollisionArea.BodyEntered += OnBodyEntered;
 		_rootState.Node = this;
 		_unstaggeredState.Node = this;
 		_staggeredState.Node = this;
@@ -199,7 +196,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		newSpeed /= speed;
 		vel *= newSpeed;
 		Velocity = vel;
-		if(Velocity > Vector3.Zero)
+		if (Velocity > Vector3.Zero)
 		{
 			IsRepositioning = true;
 		}
@@ -234,14 +231,23 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		Velocity = Vector3.Zero;
 		Show();
 		ProcessMode = ProcessModeEnum.Inherit;
-		AabbCollisionManager.Instance.Register(CollisionArea);
+		// AabbCollisionManager.Instance.Register(CollisionArea);
+		GpuCollisionManager.Instance.Register(CollisionArea);
+		Health.DamageTaken += OnDamageTaken;
+		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		CollisionArea.BodyEntered += OnBodyEntered;
 	}
 
 	public void Deactivate()
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
-		AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
+		GpuCollisionManager.Instance.UnRegister(CollisionArea);
+		EnemyNavigationManager.Instance.UnRegister(this);
+		Health.DamageTaken -= OnDamageTaken;
+		Stamina.StaminaDamageTaken -= OnStaminaDamageTaken;
+		CollisionArea.BodyEntered -= OnBodyEntered;
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 
@@ -249,7 +255,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		if (Health.CurrentHealth <= 0) return;
 		var spawner = EnemyPools.Instance.AcquireSpawner(Id, Transform, Health.CurrentHealth, ZoneId);
-		if(spawner == null) return;
+		if (spawner == null) return;
 		GetParent().AddChild(spawner);
 		EmitSignal(SignalName.DespawnEnemy);
 	}

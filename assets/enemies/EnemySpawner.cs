@@ -8,7 +8,6 @@ public partial class EnemySpawner : Marker3D
 	[Export] public string Id;
 
 	[ExportCategory("Spawn Zone")]
-	[Export] public bool IgnoreZones;
 	[Export] public string ZoneId;
 
 	[ExportCategory("Misc")]
@@ -25,7 +24,7 @@ public partial class EnemySpawner : Marker3D
 
 	public void SpawnEnemy(Node parent)
 	{
-		if (ZoneId == null && !IgnoreZones)
+		if (ZoneId == null)
 		{
 			GD.Print("zone not set");
 			return;

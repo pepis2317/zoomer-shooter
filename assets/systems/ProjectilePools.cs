@@ -64,7 +64,6 @@ public partial class ProjectilePools : Node
 			{
 				p = pool.Pop();
 			}
-			p.Activate();
 			return p;
 		}
 		return null;

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://p7hqimat3d3p"
+path="res://.godot/imported/bitonic_step.glsl-6d262cf65976adeb1c4d232bb566686e.res"
+
+[deps]
+
+source_file="res://assets/systems/bitonic_step.glsl"
+dest_files=["res://.godot/imported/bitonic_step.glsl-6d262cf65976adeb1c4d232bb566686e.res"]
+
+[params]
+

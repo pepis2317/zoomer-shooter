@@ -72,4 +72,6 @@ public partial class CollisionArea : Node3D
 		}
 		return new Aabb(GlobalPosition - HalfExtents, HalfExtents * 2f);
 	}
+	
+	public void ResetSweep() => _prevPos = GlobalPosition;
 }

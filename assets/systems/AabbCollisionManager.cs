@@ -158,7 +158,6 @@ public partial class AabbCollisionManager : Node
 		return index;
 	}
 
-	// pray to john carmack
 	private int FindSplit(int first, int last)
 	{
 		ulong firstCode = _entries[first].Code;

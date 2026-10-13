@@ -69,11 +69,12 @@ public partial class ShotgunGrunt : Enemy
 			var rotY = new Quaternion(up, spreadY);
 			direction = (rotX * rotY * direction).Normalized();
 		}
-		projectile.GlobalPosition = GlobalPosition + GlobalTransform.Basis * Vector3.Forward * 2;
+		projectile.GlobalPosition = GlobalPosition + GlobalTransform.Basis * Vector3.Forward*2f ;
 		var velocity = direction * ProjectileSpeed;
 		var upVector = Mathf.Abs(direction.Dot(Vector3.Up)) < 0.999f ? Vector3.Up : Vector3.Right;
 		projectile.LookAt(projectile.GlobalPosition + direction, upVector);
 		projectile.Setup(velocity, Damage, KnockbackForce, this);
+		projectile.Activate();
 	}
 
 	public void FireWeapon()
