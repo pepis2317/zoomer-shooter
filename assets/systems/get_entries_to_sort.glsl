@@ -3,7 +3,7 @@
 
 const int BIAS = 1 << 20;
 
-layout(local_size_x=64)in;
+layout(local_size_x=256)in;
 
 struct AABB{
     vec4 minPosition;

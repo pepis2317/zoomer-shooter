@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://fo2edxnxbbkh"
+path="res://.godot/imported/build_lbvh_hierarchy.glsl-9f2ac51fd96a871ec462c95a33853736.res"
+
+[deps]
+
+source_file="res://assets/systems/build_lbvh_hierarchy.glsl"
+dest_files=["res://.godot/imported/build_lbvh_hierarchy.glsl-9f2ac51fd96a871ec462c95a33853736.res"]
+
+[params]
+

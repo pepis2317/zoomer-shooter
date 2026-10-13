@@ -64,9 +64,6 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		{
 			AddToGroup(group);
 		}
-		Health.DamageTaken += OnDamageTaken;
-		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
-		CollisionArea.BodyEntered += OnBodyEntered;
 		_rootState.Node = this;
 		_unstaggeredState.Node = this;
 		_staggeredState.Node = this;
@@ -236,6 +233,9 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		ProcessMode = ProcessModeEnum.Inherit;
 		// AabbCollisionManager.Instance.Register(CollisionArea);
 		GpuCollisionManager.Instance.Register(CollisionArea);
+		Health.DamageTaken += OnDamageTaken;
+		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		CollisionArea.BodyEntered += OnBodyEntered;
 	}
 
 	public void Deactivate()
@@ -244,6 +244,9 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		_unstaggeredState.ExitStateMachine();
 		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
 		GpuCollisionManager.Instance.UnRegister(CollisionArea);
+		Health.DamageTaken -= OnDamageTaken;
+		Stamina.StaminaDamageTaken -= OnStaminaDamageTaken;
+		CollisionArea.BodyEntered -= OnBodyEntered;
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 

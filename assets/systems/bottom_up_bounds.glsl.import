@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c71nbcr8vmjtk"
+path="res://.godot/imported/bottom_up_bounds.glsl-0c089a612a55a19254036fe34e14033e.res"
+
+[deps]
+
+source_file="res://assets/systems/bottom_up_bounds.glsl"
+dest_files=["res://.godot/imported/bottom_up_bounds.glsl-0c089a612a55a19254036fe34e14033e.res"]
+
+[params]
+

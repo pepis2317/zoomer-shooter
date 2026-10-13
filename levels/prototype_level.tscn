@@ -61,43 +61,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.2429132, 2.7217407, 11.947
 shape = SubResource("BoxShape3D_r0d4x")
 
 [node name="ShotgunGruntSpawner" parent="." unique_id=1967406385 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 22.543474)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 3.253708)
 ZoneId = "zone_1"
 
 [node name="ShotgunGruntSpawner3" parent="." unique_id=157356861 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 22.543474)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner4" parent="." unique_id=1634078189 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1671915, 0.5, 22.543474)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner5" parent="." unique_id=1511567874 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.15655, 0.5, 22.543474)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner6" parent="." unique_id=2033856693 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.903358, 0.5, 22.543474)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner7" parent="." unique_id=1507585544 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 20.690695)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner8" parent="." unique_id=1608678356 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 20.690695)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner9" parent="." unique_id=887130772 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1671915, 0.5, 20.690695)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner10" parent="." unique_id=1921200858 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.15655, 0.5, 20.690695)
-ZoneId = "zone_1"
-
-[node name="ShotgunGruntSpawner11" parent="." unique_id=628892342 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.903358, 0.5, 20.690695)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 3.253708)
 ZoneId = "zone_1"
 
 [node name="ShotgunGruntSpawner2" parent="." unique_id=1593598940 instance=ExtResource("7_pvbb1")]

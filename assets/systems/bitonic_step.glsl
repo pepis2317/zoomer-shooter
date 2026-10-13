@@ -22,7 +22,8 @@ layout(push_constant) uniform Params {
 
 bool greater(SortEntry a, SortEntry b){
     if(a.codeHi != b.codeHi) return a.codeHi > b.codeHi;
-    return a.codeLo > b.codeLo;
+    if(a.codeLo != b.codeLo) return a.codeLo > b.codeLo;
+    return a.index > b.index;
 }
 
 void main(){

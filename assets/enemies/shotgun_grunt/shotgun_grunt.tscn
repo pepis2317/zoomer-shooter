@@ -14,8 +14,10 @@
 script = ExtResource("1_eebo5")
 RepositionBoost = 5.0
 ProjectileScene = ExtResource("2_d18ie")
-Accuracy = 50.0
 FiringDistance = 10.0
+ProjectileSpeed = 2.0
+FireCooldown = 5.0
+SpreadAngle = 5.0
 NavigationAgent = NodePath("NavigationAgent3D")
 Health = NodePath("Health")
 Stamina = NodePath("Stamina")

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cxlv51johoufc"
+path="res://.godot/imported/traversal.glsl-d46d0c57bdffd5d8c4ab18d2fb8e9be2.res"
+
+[deps]
+
+source_file="res://assets/systems/traversal.glsl"
+dest_files=["res://.godot/imported/traversal.glsl-d46d0c57bdffd5d8c4ab18d2fb8e9be2.res"]
+
+[params]
+
