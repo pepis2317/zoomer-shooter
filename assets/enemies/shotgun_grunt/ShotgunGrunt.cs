@@ -69,7 +69,7 @@ public partial class ShotgunGrunt : Enemy
 			var rotY = new Quaternion(up, spreadY);
 			direction = (rotX * rotY * direction).Normalized();
 		}
-		projectile.GlobalPosition = GlobalPosition + GlobalTransform.Basis * Vector3.Forward*2f ;
+		projectile.GlobalPosition = GlobalPosition + GlobalTransform.Basis * Vector3.Forward * 2f;
 		var velocity = direction * ProjectileSpeed;
 		var upVector = Mathf.Abs(direction.Dot(Vector3.Up)) < 0.999f ? Vector3.Up : Vector3.Right;
 		projectile.LookAt(projectile.GlobalPosition + direction, upVector);
@@ -87,6 +87,15 @@ public partial class ShotgunGrunt : Enemy
 		_hasReturnedToken = false;
 	}
 
+	public void ReturnAttackToken()
+	{
+		if (!_hasReturnedToken)
+		{
+			AttackTokenManager.Instance.ReturnToken(AttackCost);
+			_hasReturnedToken = true;
+		}
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
 		base._PhysicsProcess(delta);
@@ -96,11 +105,7 @@ public partial class ShotgunGrunt : Enemy
 		}
 		else
 		{
-			if (!_hasReturnedToken)
-			{
-				AttackTokenManager.Instance.ReturnToken(AttackCost);
-				_hasReturnedToken = true;
-			}
+			ReturnAttackToken();
 		}
 
 		if (IsInstanceValid(Target))
@@ -114,4 +119,9 @@ public partial class ShotgunGrunt : Enemy
 			}
 		}
 	}
+    public override void Deactivate()
+    {
+        base.Deactivate();
+		ReturnAttackToken();
+    }
 }
