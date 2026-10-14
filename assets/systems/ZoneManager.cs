@@ -16,7 +16,7 @@ public partial class ZoneManager : Node
 		var zones = GetTree().GetNodesInGroup("EnemyZone").OfType<EnemyZone>();
 		Zones.AddRange(zones);
 	}
-	public void ChangeZone(Node parent, string zoneId, Node3D target)
+	public void ChangeZone(Node parent, string zoneId)
 	{
 		if (CurrentZoneId != zoneId || CurrentZoneId != null)
 		{

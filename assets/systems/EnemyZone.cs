@@ -11,10 +11,10 @@ public partial class EnemyZone : Area3D
 
 	private void OnBodyEntered(Node3D body)
 	{
-		if(body is PlayerController player)
+		if(body is PlayerController)
 		{
 			GD.Print("entered: ", ZoneId);
-			ZoneManager.Instance.ChangeZone(GetParent(), ZoneId, player);
+			ZoneManager.Instance.ChangeZone(GetParent(), ZoneId);
 		}
 	}
 	public override void _ExitTree()
