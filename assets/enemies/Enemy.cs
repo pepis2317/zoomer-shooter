@@ -58,10 +58,6 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 
 	public override void _Ready()
 	{
-		Health.DamageTaken += OnDamageTaken;
-		Health.Died += OnDeath;
-		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
-		CollisionArea.BodyEntered += OnBodyEntered;
 		_query = PhysicsRayQueryParameters3D.Create(GlobalPosition, GlobalPosition + Vector3.Down * FloorCheckDistance, GeometryCollisionMask);
 		_gravity = (float)ProjectSettings.GetSetting("physics/3d/default_gravity");
 		foreach (var group in EnemyGroups)
@@ -241,6 +237,10 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		Show();
 		ProcessMode = ProcessModeEnum.Inherit;
 		// AabbCollisionManager.Instance.Register(CollisionArea);
+		Health.DamageTaken += OnDamageTaken;
+		Health.Died += OnDeath;
+		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		CollisionArea.BodyEntered += OnBodyEntered;
 		GpuCollisionManager.Instance.Register(CollisionArea);
 	}
 
@@ -251,6 +251,10 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
 		GpuCollisionManager.Instance.UnRegister(CollisionArea);
 		EnemyNavigationManager.Instance.UnRegister(this);
+		Health.DamageTaken -= OnDamageTaken;
+		Health.Died -= OnDeath;
+		Stamina.StaminaDamageTaken -= OnStaminaDamageTaken;
+		CollisionArea.BodyEntered -= OnBodyEntered;
 		
 		ResetNavigation();
 		ProcessMode = ProcessModeEnum.Disabled;
@@ -305,7 +309,7 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	{
 		IsRepositioning = false;
 		RepositionDirection = Vector3.Zero;
-
+		Velocity = Vector3.Zero;
 		NavigationAgent.Velocity = Vector3.Zero;
 		if (IsInsideTree())
 		{
