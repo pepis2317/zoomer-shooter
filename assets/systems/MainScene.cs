@@ -5,10 +5,12 @@ public partial class MainScene : Node
 {
 	private Node _currentLevel;
 	private PauseMenu _pauseMenu;
+	private Hud _hud;
 	public override void _Ready()
 	{
 		_currentLevel = GetNode("%CurrentLevel");
 		_pauseMenu = GetNode<PauseMenu>("%PauseMenu");
+		_hud = GetNode<Hud>("%Hud");
 		_pauseMenu.ResumeRequested += Resume;
 		_pauseMenu.MainMenuRequested += () =>
 		{
@@ -33,6 +35,15 @@ public partial class MainScene : Node
 		foreach (var child in _currentLevel.GetChildren())
 		{
 			if (child is IPausable) return true;
+		}
+		return false;
+	}
+
+	private bool CurrentLevelIsInGame()
+	{
+		foreach (var child in _currentLevel.GetChildren())
+		{
+			if (child is IShowHud) return true;
 		}
 		return false;
 	}
@@ -76,6 +87,7 @@ public partial class MainScene : Node
 		// 3. Load the new level; its _Ready can register freely
 		var level = GD.Load<PackedScene>(scenePath).Instantiate();
 		_currentLevel.AddChild(level);
+		_hud.Visible = CurrentLevelIsInGame();
 
 		if (level.HasSignal("ChangeLevelRequested"))
 		{

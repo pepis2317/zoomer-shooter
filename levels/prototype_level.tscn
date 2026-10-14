@@ -64,21 +64,9 @@ shape = SubResource("BoxShape3D_r0d4x")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 3.253708)
 ZoneId = "zone_1"
 
-[node name="ShotgunGruntSpawner3" parent="." unique_id=157356861 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 3.253708)
-ZoneId = "zone_1"
-
 [node name="ShotgunGruntSpawner2" parent="." unique_id=1593598940 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8549542, 0.5, 20.014343)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2017765, 0.5, 3.159645)
 ZoneId = "zone_2"
-
-[node name="ShotgunGruntSpawner12" parent="." unique_id=194977515 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.485423, 0.5, 5.0641174)
-ZoneId = "zone_1"
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=886378853]
 navigation_mesh = SubResource("NavigationMesh_lraay")
-
-[node name="ShotgunGruntSpawner13" parent="." unique_id=740223145 instance=ExtResource("7_pvbb1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.474782, 0.5, 5.0641174)
-ZoneId = "zone_1"

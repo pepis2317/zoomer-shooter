@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://2lm8g0r3a5br"]
+
+[ext_resource type="Script" uid="uid://bwk8hpa687y0w" path="res://assets/ui/Hud.cs" id="1_gas5g"]
+[ext_resource type="Script" uid="uid://b8s8vd41e5cx3" path="res://assets/ui/FpsCounter.cs" id="1_yu2hp"]
+[ext_resource type="Script" uid="uid://jbjp377q1fv3" path="res://assets/ui/ReticleDraw.cs" id="2_f8m2o"]
+
+[node name="Hud" type="CanvasLayer" unique_id=1912986243]
+script = ExtResource("1_gas5g")
+
+[node name="FpsCounter" type="Label" parent="." unique_id=651683535]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("1_yu2hp")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=465783949]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ReticleDraw" type="Control" parent="CenterContainer" unique_id=870050774]
+layout_mode = 2
+script = ExtResource("2_f8m2o")
+Radius = 10.0

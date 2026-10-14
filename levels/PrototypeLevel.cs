@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Linq;
 
-public partial class PrototypeLevel : Node, IPausable
+public partial class PrototypeLevel : Node, IPausable, IShowHud
 {
 	[Export] public LevelData LevelData;
 	public override void _Ready()

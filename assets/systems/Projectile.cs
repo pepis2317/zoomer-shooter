@@ -18,6 +18,7 @@ public abstract partial class Projectile : Node3D
 	}
 	protected void ApplyDamage(Node3D target)
 	{
+		if(!IsInsideTree()) return;
 		var healthComponent = target.GetNodeOrNull<Health>("Health");
 		if (healthComponent != null)
 		{
