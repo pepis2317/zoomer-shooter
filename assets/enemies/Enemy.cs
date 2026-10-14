@@ -58,6 +58,10 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 
 	public override void _Ready()
 	{
+		Health.DamageTaken += OnDamageTaken;
+		Health.Died += OnDeath;
+		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
+		CollisionArea.BodyEntered += OnBodyEntered;
 		_query = PhysicsRayQueryParameters3D.Create(GlobalPosition, GlobalPosition + Vector3.Down * FloorCheckDistance, GeometryCollisionMask);
 		_gravity = (float)ProjectSettings.GetSetting("physics/3d/default_gravity");
 		foreach (var group in EnemyGroups)
@@ -85,7 +89,12 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		_rootState.EnterStateMachine();
 	}
 
-	private void OnBodyEntered(CollisionArea body)
+    private void OnDeath()
+	{
+		EmitSignal(SignalName.DespawnEnemy);
+	}
+
+    private void OnBodyEntered(CollisionArea body)
 	{
 		if (body.GetParent() is not Enemy enemy)
 		{
@@ -226,28 +235,24 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 		_unstaggeredState.UpdateStateMachine((float)delta);
 	}
 
-	public void Activate()
+	public virtual void Activate()
 	{
 		Velocity = Vector3.Zero;
 		Show();
 		ProcessMode = ProcessModeEnum.Inherit;
 		// AabbCollisionManager.Instance.Register(CollisionArea);
 		GpuCollisionManager.Instance.Register(CollisionArea);
-		Health.DamageTaken += OnDamageTaken;
-		Stamina.StaminaDamageTaken += OnStaminaDamageTaken;
-		CollisionArea.BodyEntered += OnBodyEntered;
 	}
 
-	public void Deactivate()
+	public virtual void Deactivate()
 	{
 		Hide();
 		_unstaggeredState.ExitStateMachine();
 		// AabbCollisionManager.Instance.UnRegister(CollisionArea);
 		GpuCollisionManager.Instance.UnRegister(CollisionArea);
 		EnemyNavigationManager.Instance.UnRegister(this);
-		Health.DamageTaken -= OnDamageTaken;
-		Stamina.StaminaDamageTaken -= OnStaminaDamageTaken;
-		CollisionArea.BodyEntered -= OnBodyEntered;
+		
+		ResetNavigation();
 		ProcessMode = ProcessModeEnum.Disabled;
 	}
 
@@ -291,17 +296,29 @@ public abstract partial class Enemy : Node3D, INavigationTickable
 	public void InitReposition(Vector3 position)
 	{
 		IsRepositioning = true;
+		RepositionPoint = position;
 		NavigationAgent.TargetPosition = position;
 		RepositionDirection = RepositionPoint - GlobalPosition;
 	}
 
+	public void ResetNavigation()
+	{
+		IsRepositioning = false;
+		RepositionDirection = Vector3.Zero;
+
+		NavigationAgent.Velocity = Vector3.Zero;
+		if (IsInsideTree())
+		{
+			NavigationAgent.TargetPosition = GlobalPosition;
+		}
+	}
+
 	public void HandleFollowNavigation(float delta)
 	{
+		if (!IsRepositioning) return;
 		if (NavigationAgent.IsNavigationFinished())
 		{
-			Velocity = Vector3.Zero;
-			NavigationAgent.Velocity = Vector3.Zero;
-			IsRepositioning = false;
+			ResetNavigation();
 			return;
 		}
 
